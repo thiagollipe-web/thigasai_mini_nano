@@ -1,3 +1,92 @@
-# THIGAS AI Mini + Nano
+# THIGAS AI — Nano rápido + Mini elaborado | Render
 
-Publicação dos arquivos do portal THIGAS AI v0.6 em andamento. Não armazene chaves ou senhas no repositório.
+Portal web protegido por senha, com dois **estilos de resposta** sob a identidade THIGAS AI:
+
+- **THIGAS nano:** respostas curtas, diretas e objetivas; consulta à Wikipédia em português disponível opcionalmente.
+- **THIGAS mini:** explicações mais elaboradas, com contexto, exemplos e etapas quando necessário.
+
+Ao entrar pela primeira vez em `/`, o visitante escolhe: **"Você prefere respostas rápidas ou mais elaboradas?"**. O modo pode ser alterado a qualquer momento pelos botões superiores. Somente essa escolha de estilo fica salva no navegador; o histórico da conversa não persiste após recarregar a página.
+
+## Informação técnica para o administrador
+
+O nome do provedor de IA e o identificador do modelo **não aparecem na interface**, na API pública de status nem nas mensagens de erro apresentadas pelo site. A chave de acesso nunca é enviada ao navegador. Ainda assim, a arquitetura deve ser descrita com transparência se houver uma pergunta técnica direta.
+
+Por padrão, **ambos os estilos usam a mesma API externa da Maritaca AI**, com `sabiazinho-4-br-sp`: são perfis de resposta distintos, **não dois modelos locais GGUF diferentes**. O Nano reduz o limite de tokens de saída, enquanto o Mini usa limite maior e orientações para detalhar. O usuário pode escolher a extensão e o propósito da resposta, sem garantia contratual de tempo de resposta. O Mini pode ser ligado a um backend próprio somente quando um servidor remoto autenticado estiver disponível. O Render gratuito não executa automaticamente os arquivos GGUF produzidos no Termux. Uma API paga continua consumindo créditos quando utilizada.
+
+## Publicar no Render (sem computador)
+
+1. Utilize o repositório existente [thiagollipe-web/thigasai_mini_nano](https://github.com/thiagollipe-web/thigasai_mini_nano). **Ele é público**: nunca envie chaves, senhas nem `config.local.json`. O projeto já inclui os arquivos na raiz, incluindo `render.yaml`, `web_cloud.py`, `index.html`, `requirements.txt` e `thigas_wiki.py`.
+2. Em <https://dashboard.render.com/>, escolha **New > Blueprint**. Autorize o acesso ao repositório e selecione o plano **Free**.
+3. Defina no Render as variáveis privadas `MARITACA_API_KEY` (a sua chave) e `THIGAS_SITE_PASSWORD` (senha **diferente** da chave, com pelo menos 12 caracteres). Elas não devem estar no GitHub. **Nunca copie `config.local.json` para o repositório.**
+4. Quando o serviço estiver ativo, entre no endereço HTTPS fornecido pelo Render, com usuário `thigas` e a senha `THIGAS_SITE_PASSWORD`.
+5. Na tela inicial, escolha **THIGAS nano — respostas rápidas** ou **THIGAS mini — respostas elaboradas**.
+
+O nome do endereço público será definido pelo Render. Não presuma que um subdomínio esteja livre.
+
+### Usando Termux para enviar os arquivos
+
+Baixe `THIGAS_AI_Mini_Nano_Respostas_v06.zip` para Downloads e execute **fora do Ubuntu PRoot**:
+
+```bash
+pkg install -y git gh unzip python
+termux-setup-storage
+mkdir -p ~/thigas-site-render
+unzip -o ~/storage/downloads/THIGAS_AI_Mini_Nano_Respostas_v06.zip -d ~/thigas-site-render
+cd ~/thigas-site-render
+python3 -m unittest discover -s tests -q
+gh auth login
+git init
+git branch -M main
+git add .
+git commit -m "THIGAS AI nano rapido e mini detalhado"
+git remote add origin https://github.com/thiagollipe-web/thigasai_mini_nano.git
+git push -u origin main
+```
+
+Se o comando `git commit` solicitar identidade, configure `git config --global user.name` e `git config --global user.email`. Se o repositório remoto já tiver commits, faça `git clone` primeiro em vez de `git init`, para evitar histórico divergente. Novas alterações devem ser enviadas por commit/push normalmente.
+
+## Configuração manual do Web Service (alternativa ao Blueprint)
+
+- Runtime: **Python**, versão especificada em `.python-version`.
+- Comando de build: `pip install -r requirements.txt`
+- Comando de inicialização: `python3 web_cloud.py`
+- Health check: `/health`
+- Environment obrigatórias: `THIGAS_CLOUD_MODE=1`, `MARITACA_API_KEY`, `THIGAS_SITE_PASSWORD`.
+- Environment opcionais: `MARITACA_MODEL=sabiazinho-4-br-sp`, `THIGAS_SITE_USER=thigas`, `THIGAS_MAX_REQUESTS_HOUR=20`, `THIGAS_NANO_MAX_TOKENS=220`, `THIGAS_MINI_MAX_TOKENS=800`, `THIGAS_WIKI_CONTACT`.
+
+### Backend Mini próprio (opcional)
+
+Se hospedar o GGUF do seu Mini em **outro servidor público HTTPS com autenticação**, configure:
+
+```text
+THIGAS_MINI_UPSTREAM_URL=https://seu-servidor/v1/chat/completions
+THIGAS_MINI_API_KEY=token-do-servidor-remoto
+THIGAS_MINI_MODEL=THIGAS_AI_mini
+```
+
+O localhost (`127.0.0.1`) do seu Termux não é acessível ao Render. **Nunca exponha um llama-server doméstico sem autenticação e HTTPS.** Sem endpoint remoto, o Mini usa o serviço externo configurado, com o estilo elaborado.
+
+## Segurança, custos e limitações
+
+- Autenticação HTTP Basic em todo o conteúdo e na API de chat. Use somente HTTPS no acesso remoto.
+- O limite global padrão é 20 perguntas por hora e até duas chamadas simultâneas, mantidas em memória. Reinícios limpam o contador; não é um limite financeiro confiável. Defina limites de gasto no painel da sua API, caso disponíveis.
+- Não divulgue credenciais em conversas, prints ou repositórios. Para alunos e terceiros, considere autenticação individual e controle de cotas no futuro.
+- Históricos são mantidos apenas na página aberta. Pesquisas feitas no modo Nano podem consultar a Wikipédia online. O conteúdo da Wikipédia serve como fonte, não como instrução.
+- O modo Nano costuma ser mais sucinto, mas uma pesquisa externa pode torná-lo mais lento do que o Mini.
+- Render Free pode suspender a aplicação ociosa; o primeiro acesso após inatividade pode demorar.
+- O modelo THIGAS AI nano v0.2 treinado do zero e seu GGUF **não são alterados** por este aplicativo.
+
+## Teste local
+
+```bash
+python3 -m unittest discover -s tests -v
+THIGAS_CLOUD_MODE=1 THIGAS_SITE_PASSWORD='senha-de-testes-forte' MARITACA_API_KEY='ficticia' PORT=8173 python3 web_cloud.py
+```
+
+Abra `http://127.0.0.1:8173` para visualizar a tela (o chat com chave fictícia não responderá). Os testes usam respostas simuladas e **não consomem créditos**.
+
+## Documentação de referência
+
+- <https://render.com/docs/free>
+- <https://render.com/docs/blueprint-spec>
+- <https://docs.maritaca.ai/pt/api/openai-compatibilidade>

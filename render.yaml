@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: thigas-mini-nano
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python3 web_cloud.py
+    healthCheckPath: /health
+    envVars:
+      - key: THIGAS_CLOUD_MODE
+        value: "1"
+      - key: MARITACA_MODEL
+        value: sabiazinho-4-br-sp
+      - key: THIGAS_SITE_USER
+        value: thigas
+      - key: THIGAS_MAX_REQUESTS_HOUR
+        value: "20"
+      - key: MARITACA_API_KEY
+        sync: false
+      - key: THIGAS_SITE_PASSWORD
+        sync: false

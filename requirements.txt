@@ -1,0 +1,1 @@
+# O THIGAS AI nano utiliza somente a biblioteca padrao do Python 3.13.
