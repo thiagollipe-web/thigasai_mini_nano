@@ -54,6 +54,23 @@ class PWATests(unittest.TestCase):
         self.assertIn("serviceWorker.register('/sw.js'",html)
         self.assertIn('id="install-pwa"',html)
 
+    def test_chat_history_module_requires_login_and_is_not_cached(self):
+        with self.assertRaises(error.HTTPError) as auth_error:
+            self.get('/history_store.js')
+        self.assertEqual(auth_error.exception.code,401)
+        with self.get('/history_store.js',auth=True) as response:
+            js=response.read().decode()
+        self.assertIn('THIGASHistory',js)
+        with self.get('/sw.js') as response:
+            sw=response.read().decode()
+        self.assertNotIn("'/history_store.js'",sw)
+        with self.get('/',auth=True) as response:
+            html=response.read().decode()
+        for token in ('id="history-sidebar"','id="history-search"',
+                      'id="history-new"','id="history-clear-all"',
+                      '/history_store.js','id="sidebar-toggle"'):
+            self.assertIn(token,html)
+
     def test_service_worker_does_not_cache_secrets(self):
         with self.get('/sw.js') as response:
             js=response.read().decode()

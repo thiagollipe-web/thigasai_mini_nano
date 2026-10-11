@@ -1,3 +1,23 @@
+## Histórico lateral de conversas (v0.9)
+
+No computador, o **histórico aparece à esquerda**, organizado por Hoje, Ontem,
+Últimos 7 dias, Últimos 30 dias e Anteriores. No celular, abra ou feche o menu
+com o botão ☰ no cabeçalho. Recursos: **Nova conversa**, busca local por título
+ou mensagem, reabrir conversas, renomear, excluir individualmente e apagar todo o
+histórico com confirmação. Os títulos são gerados a partir da primeira pergunta.
+
+As conversas são persistidas **somente no armazenamento local do navegador/PWA**;
+não são sincronizadas com outros aparelhos, não ficam em banco de dados no Render,
+e podem desaparecer se os dados do site forem apagados ou o modo privado for usado.
+O histórico é armazenado em texto simples no próprio dispositivo e poderá ser
+visto por quem usar o mesmo perfil do navegador. Evite inserir dados pessoais
+sensíveis, especialmente dados de estudantes. O aplicativo preserva somente
+mensagens, links públicos de fontes e preferências de esforço/Wikipédia.
+**Arquivos, imagens e textos extraídos de documentos/sites não são persistidos**;
+eles precisam ser anexados novamente ao reabrir a conversa. Por espaço e
+desempenho, o histórico é limitado às 80 conversas e 70 mensagens mais recentes
+por conversa, sujeito à cota de armazenamento do navegador.
+
 ## Chat com esforço, microfone, anexos e atalhos (v0.8)
 
 A interface foi redesenhada como uma conversa única. Não há mais abas grandes de

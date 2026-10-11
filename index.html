@@ -96,12 +96,81 @@
  .msg.user .msg-body{max-width:90%}
 }
 @media(max-height:550px){.welcome{min-height:10vh;padding:8px}.welcome img{display:none}}
+
+/* Histórico de conversas — coluna fixa no desktop e gaveta no celular. */
+.app{flex-direction:row}
+.workspace{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column}
+.history-sidebar{width:267px;min-width:267px;flex:none;display:flex;flex-direction:column;background:#f0f1eb;border-right:1px solid var(--line);height:100dvh;overflow:hidden;transition:width .18s ease,min-width .18s ease}
+.history-head{padding:14px 11px 7px;flex:none}
+.history-brand{display:flex;align-items:center;gap:9px;padding:4px 6px 12px;font-weight:760;color:#414a34}
+.history-brand img{width:34px;height:34px;object-fit:contain;border-radius:10px;background:white}
+.history-brand span{flex:1}
+.history-close{background:transparent;border:0;border-radius:10px;width:32px;height:32px;font-size:18px}
+.history-close:hover{background:#e0e5d8}
+.history-new{display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;padding:11px;border:1px solid transparent;background:transparent;border-radius:11px;text-align:left;font-weight:700;font-size:14px}
+.history-new:hover{background:#e2e6db}
+.history-new .new-symbol{display:grid;place-items:center;width:27px;height:27px;border-radius:9px;background:#fdfef9;font-size:20px}
+.history-search-wrap{margin-top:10px;padding:0 4px}
+.history-search-wrap label{display:block;font-size:11px;color:#64675a;font-weight:650;padding:0 6px 5px}
+#history-search{width:100%;border:1px solid #d7dacd;border-radius:11px;padding:9px 10px;background:#fafbf6;color:var(--text);font-size:13px;min-height:39px}
+.history-list{flex:1;min-height:0;overflow:auto;padding:2px 8px 15px;scrollbar-color:#c2c6b9 transparent}
+.history-group{font-size:11px;color:#737669;font-weight:700;margin:16px 11px 5px}
+.history-entry{display:flex;align-items:center;position:relative;gap:1px;border-radius:10px;margin:1px 0}
+.history-entry:hover{background:#e6e9df}
+.history-entry.current{background:#dde4d5}
+.history-open{flex:1;min-width:0;border:0;border-radius:10px;background:transparent;padding:10px 8px 10px 11px;font-size:13px;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.history-entry.current .history-open{font-weight:700}
+.history-more{flex:none;width:30px;height:32px;border:0;border-radius:9px;background:transparent;font-size:21px;color:#555b4c;line-height:1}
+.history-more:hover,.history-more[aria-expanded="true"]{background:#d1d8ca}
+.history-actions{position:absolute;top:calc(100% - 1px);right:2px;width:160px;background:#fffefa;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 25px #242c252b;padding:5px;z-index:6}
+.history-actions button{display:block;width:100%;text-align:left;background:transparent;border:0;padding:10px 8px;border-radius:8px;font-size:12px}
+.history-actions button:hover{background:#f0f2eb}
+.history-actions button.danger{color:#91432e}
+.history-empty{padding:17px 12px;color:#6b7061;font-size:12px;line-height:1.5}
+.history-foot{flex:none;border-top:1px solid #dce0d3;padding:12px 15px 15px;display:grid;gap:9px}
+.history-foot p{font-size:11px;line-height:1.45;margin:0;color:#66705c}
+.history-clear{font-size:12px;text-align:left;color:#745541;border:0;background:transparent;padding:5px 0}
+.history-clear:hover{text-decoration:underline}
+.history-backdrop{position:fixed;inset:0;background:#0b140b70;z-index:18}
+.sidebar-toggle{height:38px;width:38px;flex:none;border:0;background:transparent;border-radius:11px;display:grid;place-items:center;font-size:21px;color:#4c523a}
+.sidebar-toggle:hover{background:#f1f3eb}
+.topbar{position:relative}
+.top-inner{gap:12px}
+.app.sidebar-collapsed .history-sidebar{width:0;min-width:0;border:0}
+@media(max-width:850px){
+ .history-sidebar{position:fixed;left:0;top:0;bottom:0;z-index:19;width:min(302px,87vw);min-width:0;max-width:87vw;box-shadow:12px 0 32px #1b241d1a;transform:translateX(-108%);transition:transform .2s ease}
+ .history-sidebar.open{transform:translateX(0)}
+ .app.sidebar-collapsed .history-sidebar{width:min(302px,87vw);min-width:0;border-right:1px solid var(--line)}
+ .history-backdrop:not([hidden]){display:block}
+ .top-inner{padding-inline:10px}
+ .brand{gap:8px}
+ .brand img{width:38px;height:38px}
+ .brand small{display:none}
+ .text-btn{font-size:12px}
+}
+@media(min-width:851px){.history-backdrop{display:none!important}.history-close{display:none}}
+
 </style>
 </head>
 <body>
-<div class="app">
+<div class="app" id="app">
+<aside id="history-sidebar" class="history-sidebar" aria-label="Histórico de conversas">
+ <div class="history-head">
+  <div class="history-brand"><img src="/assets/capivara.svg" alt=""><span>THIGAS AI</span><button id="history-close" class="history-close" type="button" aria-label="Fechar menu lateral">✕</button></div>
+  <button id="history-new" type="button" class="history-new"><span class="new-symbol">＋</span> Nova conversa</button>
+  <div class="history-search-wrap"><label for="history-search">Pesquisar no histórico</label><input id="history-search" type="search" maxlength="100" placeholder="Buscar conversas..." autocomplete="off"></div>
+ </div>
+ <nav id="history-list" class="history-list" aria-label="Conversas salvas"></nav>
+ <div class="history-foot">
+  <p>Histórico salvo apenas neste navegador. Não sincroniza entre aparelhos. Anexos não são armazenados.</p>
+  <button id="history-clear-all" class="history-clear" type="button">Apagar todo o histórico</button>
+ </div>
+</aside>
+<div id="history-backdrop" class="history-backdrop" hidden></div>
+<div class="workspace">
 <header class="topbar">
  <div class="top-inner">
+  <button id="sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Abrir histórico de conversas" aria-expanded="true" aria-controls="history-sidebar">☰</button>
   <div class="brand">
    <img src="/assets/capivara.svg" alt="Símbolo da capivara do THIGAS AI">
    <div><strong>THIGAS AI</strong><small>Assistente de pesquisa e criação</small></div>
@@ -166,11 +235,13 @@
  <div class="status-line"><span id="status">Conectando...</span> · Use <strong>@</strong> para fontes e <strong>/</strong> para comandos. Microfone depende do navegador.</div>
 </footer>
 </div>
+</div>
+<script src="/history_store.js"></script>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
 const chat=$('conversation'),scroll=$('chat-scroll'),input=$('prompt'),send=$('send');
-const state={history:[],messages:[],context:null,image:null,wiki:false,busy:false,effort:'equilibrado',recording:false,recognition:null};
+const state={history:[],messages:[],context:null,image:null,wiki:false,busy:false,effort:'equilibrado',recording:false,recognition:null,activeChatId:null};
 const labels={rapido:'Rápido',equilibrado:'Equilibrado',alto:'Alto'};
 try{
  const stored=localStorage.getItem('thigas_effort');
@@ -178,6 +249,157 @@ try{
  state.effort=labels[stored]?stored:(location.pathname==='/nano'||old==='nano'?'rapido':'equilibrado');
 }catch(_){}
 if(location.pathname==='/mini')state.effort='equilibrado';
+
+const chatStore=window.THIGASHistory;
+let persistentStorage=null,conversations=[],warnedStorage=false;
+let sessionSelected=null;
+try{
+ persistentStorage=window.localStorage;
+ conversations=chatStore.load(persistentStorage);
+}catch(_){}
+try{sessionSelected=sessionStorage.getItem('thigas_active_session_chat')}catch(_){}
+if(sessionSelected==='draft')state.activeChatId=null;
+else if(sessionSelected&&conversations.some(c=>c.id===sessionSelected))state.activeChatId=sessionSelected;
+else state.activeChatId=conversations[0]?.id||null;
+const sidebarQuery=window.matchMedia('(max-width:850px)');
+let sidebarOpen=!sidebarQuery.matches;
+function sessionActive(value){
+ try{sessionStorage.setItem('thigas_active_session_chat',value||'draft')}catch(_){}
+}
+function setSidebar(open){
+ sidebarOpen=!!open;
+ const mobile=sidebarQuery.matches,element=$('history-sidebar');
+ element.classList.toggle('open',mobile&&sidebarOpen);
+ $('app').classList.toggle('sidebar-collapsed',!mobile&&!sidebarOpen);
+ $('history-backdrop').hidden=!(mobile&&sidebarOpen);
+ element.inert=!sidebarOpen;
+ element.setAttribute('aria-hidden',String(!sidebarOpen));
+ $('sidebar-toggle').setAttribute('aria-expanded',String(sidebarOpen));
+ $('sidebar-toggle').setAttribute('aria-label',sidebarOpen?'Ocultar histórico':'Mostrar histórico');
+}
+$('sidebar-toggle').onclick=()=>setSidebar(!sidebarOpen);
+$('history-close').onclick=()=>setSidebar(false);
+$('history-backdrop').onclick=()=>setSidebar(false);
+if(sidebarQuery.addEventListener)sidebarQuery.addEventListener('change',()=>setSidebar(!sidebarQuery.matches));
+function persistCurrent(){
+ if(!state.messages.length)return;
+ let original=conversations.find(c=>c.id===state.activeChatId);
+ if(!original){
+  const first=state.messages.find(m=>m.role==='user');
+  original=chatStore.make(first?.text||'Nova conversa',{effort:state.effort,wiki:state.wiki});
+  state.activeChatId=original.id;
+  sessionActive(original.id);
+ }
+ const record={...original,updatedAt:new Date().toISOString(),effort:state.effort,
+  wiki:state.wiki,messages:state.messages};
+ conversations=chatStore.upsert(conversations,record);
+ if(!chatStore.save(persistentStorage,conversations)&&!warnedStorage){
+  warnedStorage=true;
+  announce('Histórico não pôde ser salvo neste navegador. Verifique armazenamento ou modo privado.',7200);
+ }
+ renderHistoryList();
+}
+function renderHistoryList(){
+ const list=$('history-list');
+ if(!list)return;
+ list.replaceChildren();
+ const entries=chatStore.lookup(conversations,$('history-search').value||'');
+ if(!entries.length){
+  const empty=document.createElement('p');empty.className='history-empty';
+  empty.textContent=conversations.length?'Nenhuma conversa corresponde à pesquisa.':'Suas conversas aparecerão aqui depois de enviar a primeira mensagem.';
+  list.append(empty);return;
+ }
+ let section='';
+ for(const item of entries){
+  const group=chatStore.group(item.updatedAt);
+  if(group!==section){
+   section=group;const title=document.createElement('div');title.className='history-group';
+   title.textContent=group;list.append(title);
+  }
+  const row=document.createElement('div');row.className='history-entry';
+  if(item.id===state.activeChatId)row.classList.add('current');
+  const open=document.createElement('button');open.type='button';open.className='history-open';
+  open.textContent=item.title;open.title=item.title;
+  if(item.id===state.activeChatId)open.setAttribute('aria-current','page');
+  open.onclick=()=>openConversation(item.id);
+  const more=document.createElement('button');more.type='button';more.className='history-more';
+  more.textContent='⋯';more.setAttribute('aria-label','Opções de '+item.title);more.setAttribute('aria-expanded','false');
+  const menu=document.createElement('div');menu.className='history-actions';menu.hidden=true;
+  more.onclick=e=>{
+   e.stopPropagation();
+   const show=menu.hidden;
+   document.querySelectorAll('.history-actions').forEach(x=>x.hidden=true);
+   document.querySelectorAll('.history-more').forEach(x=>x.setAttribute('aria-expanded','false'));
+   menu.hidden=!show;more.setAttribute('aria-expanded',String(show));
+  };
+  const rename=document.createElement('button');rename.type='button';rename.textContent='Renomear';
+  rename.onclick=()=>{
+   if(state.busy){announce('Aguarde o término da resposta.');return}
+   const name=window.prompt('Novo título da conversa:',item.title);
+   if(name===null)return;
+   if(!name.trim()){announce('Digite um título válido.');return}
+   conversations=chatStore.rename(conversations,item.id,name.trim());
+   if(!chatStore.save(persistentStorage,conversations))announce('Não foi possível gravar o título neste navegador.');
+   renderHistoryList();
+  };
+  const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent='Excluir';
+  remove.onclick=()=>{
+   if(state.busy){announce('Aguarde o término da resposta.');return}
+   if(!window.confirm('Excluir esta conversa do histórico deste navegador?'))return;
+   conversations=chatStore.remove(conversations,item.id);
+   chatStore.save(persistentStorage,conversations);
+   if(state.activeChatId===item.id)newChat();
+   else renderHistoryList();
+  };
+  menu.append(rename,remove);
+  row.append(open,more,menu);list.append(row);
+ }
+}
+function openConversation(id){
+ if(state.busy){announce('Aguarde a resposta atual para mudar de conversa.');return}
+ const saved=conversations.find(c=>c.id===id);
+ if(!saved)return;
+ state.activeChatId=id;sessionActive(id);
+ state.messages=saved.messages.map(item=>({...item}));
+ state.history=state.messages.filter(m=>!m.failed).slice(-8).map(m=>({role:m.role,content:m.text}));
+ state.effort=saved.effort;
+ state.wiki=saved.wiki;
+ state.context=null;state.image=null;
+ input.value='';$('site-panel').hidden=true;
+ hideQuick();closePopups();updateAttachment();updateWiki();updateEffort();resize();
+ chat.replaceChildren();
+ state.messages.forEach(item=>{
+  const view={...item};
+  if(item.attachmentUsed)view.text+='\\n[Anexo anterior não salvo. Envie novamente para continuar a análise.]';
+  renderMessage(view);
+ });
+ renderHistoryList();
+ if(sidebarQuery.matches)setSidebar(false);
+ jump();input.focus();
+ if(saved.messages.some(m=>m.attachmentUsed))announce('Conversa restaurada. Anexos devem ser enviados novamente.',5800);
+}
+$('history-new').onclick=newChat;
+$('history-search').addEventListener('input',renderHistoryList);
+$('history-clear-all').onclick=()=>{
+ if(state.busy){announce('Aguarde a resposta atual.');return}
+ if(!conversations.length)return;
+ if(!window.confirm('Apagar TODAS as conversas salvas neste navegador? Esta ação não pode ser desfeita.'))return;
+ conversations=[];chatStore.save(persistentStorage,[]);
+ newChat();announce('Histórico local apagado.');
+};
+document.addEventListener('pointerdown',event=>{
+ if(!event.target.closest('.history-entry')){
+  document.querySelectorAll('.history-actions').forEach(x=>x.hidden=true);
+  document.querySelectorAll('.history-more').forEach(x=>x.setAttribute('aria-expanded','false'));
+ }
+});
+window.addEventListener('storage',event=>{
+ if(event.key!==chatStore.KEY)return;
+ conversations=chatStore.load(persistentStorage);
+ if(state.activeChatId&&!conversations.some(c=>c.id===state.activeChatId)&&!state.busy)newChat();
+ else renderHistoryList();
+});
+
 function announce(s,ms=3800){
  const t=$('toast');t.textContent=s;t.hidden=false;
  clearTimeout(announce.handle);announce.handle=setTimeout(()=>{t.hidden=true},ms);
@@ -235,6 +457,7 @@ function chooseEffort(value){
  if(!labels[value])return;
  state.effort=value;try{localStorage.setItem('thigas_effort',value)}catch(_){}
  updateEffort();closePopups();
+ if(state.activeChatId)persistCurrent();
 }
 function togglePopup(button,popup){
  const open=popup.hidden;closePopups();
@@ -259,7 +482,7 @@ function chooseTool(name){
  if(name==='documento'){$('document-file').click();return}
  if(name==='imagem'){$('image-file').click();return}
  if(name==='site'){$('site-panel').hidden=false;$('site-url').focus();return}
- if(name==='wikipedia'){state.wiki=!state.wiki;updateWiki();announce(state.wiki?'Wikipédia ativada.':'Wikipédia desativada.');input.focus();}
+ if(name==='wikipedia'){state.wiki=!state.wiki;updateWiki();if(state.activeChatId)persistCurrent();announce(state.wiki?'Wikipédia ativada.':'Wikipédia desativada.');input.focus();}
 }
 function updateWiki(){
  $('wiki-action-text').innerHTML='';
@@ -392,9 +615,9 @@ function applyQuick(entry){
  const t=tokenInfo;if(!t)return;
  const initial=input.value,head=initial.slice(0,t.start),tail=initial.slice(t.end);
  input.value=head+(entry.insert||'')+tail;hideQuick();resize();
- if(entry.type==='wikipedia'){state.wiki=true;updateWiki();announce('Wikipédia ativada.')}
+ if(entry.type==='wikipedia'){state.wiki=true;updateWiki();if(state.activeChatId)persistCurrent();announce('Wikipédia ativada.')}
  else if(entry.type==='documento'||entry.type==='imagem'||entry.type==='site'){chooseTool(entry.type)}
- else if(entry.type==='search'){state.wiki=true;updateWiki()}
+ else if(entry.type==='search'){state.wiki=true;updateWiki();if(state.activeChatId)persistCurrent()}
  else if(entry.type==='clear'){newChat();return}
  else if(entry.type==='help'){announce('Use @wikipedia, @arquivo, @imagem, @site e /resumir, /explicar, /pesquisar, /codigo, /limpar.',7800)}
  input.focus();
@@ -410,12 +633,16 @@ input.addEventListener('keydown',e=>{
  }
  if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();$('composer').requestSubmit()}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePopups();hideQuick();$('site-panel').hidden=true}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePopups();hideQuick();$('site-panel').hidden=true;if(sidebarQuery.matches)setSidebar(false)}});
 function newChat(){
  if(state.busy)return;
+ if(state.recording&&state.recognition)state.recognition.stop();
+ state.activeChatId=null;sessionActive('draft');
  state.history=[];state.messages=[];state.context=null;state.image=null;
  state.wiki=false;updateWiki();updateAttachment();input.value='';resize();
- $('site-panel').hidden=true;hideQuick();closePopups();welcome();input.focus();
+ $('site-panel').hidden=true;hideQuick();closePopups();welcome();renderHistoryList();
+ if(sidebarQuery.matches)setSidebar(false);
+ input.focus();
 }
 $('new-chat').onclick=newChat;
 // Ditado, com consentimento solicitado pelo navegador no clique do microfone.
@@ -454,7 +681,8 @@ $('composer').addEventListener('submit',async event=>{
  const welcomeNode=chat.querySelector('.welcome');if(welcomeNode)welcomeNode.remove();
  const visible=q+(attachment?'\n[Imagem anexada: '+attachment.nome+']':'')+(context?'\n[Referência: '+context.titulo+']':'');
  renderMessage({role:'user',text:visible});
- state.messages.push({role:'user',text:q});
+ state.messages.push({role:'user',text:q,attachmentUsed:!!(attachment||context)});
+ persistCurrent();
  const pending=renderMessage({role:'assistant',text:wiki?'Consultando fontes e preparando resposta...':attachment?'Lendo o texto da imagem...':'Preparando resposta...'});
  pending.classList.add('pending');
  setBusy(true);
@@ -466,18 +694,19 @@ $('composer').addEventListener('submit',async event=>{
   if(!res.ok)throw Error(data.erro||'HTTP '+res.status);
   pending.remove();
   const answer={role:'assistant',text:data.resposta||'Não foi possível gerar texto.',sources:data.fontes||[],notice:data.aviso||''};
-  state.messages.push(answer);renderMessage(answer);
+  state.messages.push(answer);renderMessage(answer);persistCurrent();
   state.history.push({role:'user',content:q},{role:'assistant',content:answer.text});state.history=state.history.slice(-8);
   if(attachment===state.image){state.image=null;updateAttachment()}
  }catch(err){pending.remove();
   const message='Não consegui responder agora: '+String(err.message||'Falha de conexão.');
-  state.messages.push({role:'assistant',text:message});renderMessage({role:'assistant',text:message});
+  state.messages.push({role:'assistant',text:message,failed:true});renderMessage({role:'assistant',text:message});persistCurrent();
  }finally{setBusy(false);input.focus()}
 });
 fetch('/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(Error('offline'))).then(d=>{
  $('status').textContent=d.ok?'● THIGAS AI online':'Servidor iniciando';
 }).catch(()=>{$('status').textContent='Sem conexão com o servidor'});
-updateEffort();updateWiki();updateAttachment();resize();welcome();
+updateEffort();updateWiki();updateAttachment();resize();renderHistoryList();setSidebar(sidebarOpen);
+if(state.activeChatId)openConversation(state.activeChatId);else welcome();
 let pendingInstall=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pendingInstall=e;$('install-pwa').hidden=false});
 $('install-pwa').onclick=async()=>{if(!pendingInstall)return;const p=pendingInstall;pendingInstall=null;$('install-pwa').hidden=true;try{await p.prompt()}catch(_){}};
