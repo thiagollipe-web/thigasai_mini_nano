@@ -23,6 +23,7 @@ from site_tools import ContextError, documento, site, validar_contexto
 
 BASE = Path(__file__).resolve().parent
 INDEX = (BASE / 'index.html').read_bytes()
+HISTORY_JS = (BASE / 'history_store.js').read_bytes()
 CAPIVARA = (BASE / 'assets' / 'capivara.svg').read_bytes()
 # Somente recursos estáticos públicos podem ser guardados offline.
 # Arquivos de configuração, HTML autenticado e respostas da API nunca são cacheados.
@@ -220,6 +221,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.ask_login()
         if path in ('/', '/index.html', '/mini', '/nano'):
             return self.send_body(200, INDEX, 'text/html; charset=utf-8')
+        if path == '/history_store.js':
+            return self.send_body(200, HISTORY_JS, 'text/javascript; charset=utf-8')
         if path == '/assets/capivara.svg':
             return self.send_body(200, CAPIVARA, 'image/svg+xml; charset=utf-8')
         if path == '/api/status':
