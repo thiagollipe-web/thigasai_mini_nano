@@ -8,233 +8,483 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="THIGAS AI">
+<meta name="description" content="THIGAS AI — chat com esforço ajustável, Wikipédia, documentos, imagens e ditado.">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" type="image/svg+xml" href="/assets/capivara.svg">
 <link rel="apple-touch-icon" href="/assets/icon-180.png">
-<meta name="description" content="THIGAS AI: escolha entre respostas rápidas com o Nano ou explicações elaboradas com o Mini.">
-<title>THIGAS AI | Nano e Mini</title>
+<title>THIGAS AI — Seu assistente</title>
 <style>
-:root{color-scheme:dark;--bg:#0a1323;--panel:#101d30;--card:#192a41;--line:#2c425b;--text:#eef6ff;--muted:#aec2db;--accent:#85c8ff;--ok:#8ee7bd;--user:#25476d}
-*{box-sizing:border-box}[hidden]{display:none!important}html,body{height:100%;margin:0}body{background:var(--bg);color:var(--text);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{height:100dvh;min-height:420px;max-width:1080px;display:flex;flex-direction:column;margin:auto;background:var(--panel)}
-header{padding:12px 15px 11px;border-bottom:1px solid var(--line);background:#0f1b2d}.brand{display:flex;align-items:center;gap:10px}.logo{display:grid;place-items:center;flex:none;width:39px;height:39px;background:linear-gradient(135deg,#215379,#0d7c87);border-radius:12px;color:white;font-size:20px;font-weight:900}.brand h1{margin:0;font-size:19px;line-height:1.2}.brand p{margin:4px 0 0;font-size:12px;color:var(--muted)}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:13px}.tabs button{text-align:left;border:1px solid var(--line);background:#172940;color:#e4f2ff;border-radius:13px;padding:9px 11px;min-height:59px}.tabs button strong{font-size:14px}.tabs button small{display:block;font-size:11px;line-height:1.35;color:var(--muted)}.tabs button.selected{background:#23517c;border-color:#8ac8ff}.tabs button.selected small{color:#e0f1ff}
-.statusbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);background:#111f32;font-size:12px;color:var(--muted)}.statusbar button{background:#1e3551;color:#dbeeff;border:1px solid var(--line);border-radius:9px;padding:6px 10px}.online{color:var(--ok)}
-#chat{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:13px;padding:17px 12px 24px;scrollbar-color:#405c77 transparent}.bubble{max-width:min(760px,93%);background:var(--card);border:1px solid var(--line);border-radius:17px;padding:12px 14px;white-space:pre-wrap;overflow-wrap:anywhere;align-self:flex-start;line-height:1.55}.bubble.user{align-self:flex-end;background:var(--user);border-color:#476b97;max-width:87%}.sender{display:block;color:#a4d4ff;font-size:11px;font-weight:800;margin-bottom:6px}.bubble.user .sender{color:#f2f9ff}.pending{opacity:.74}.sources{display:grid;gap:7px;padding-top:10px;border-top:1px solid var(--line);margin-top:13px;font-size:12px}.sources a{color:#a5d8ff;overflow-wrap:anywhere}.notice{margin-top:8px;font-size:12px;color:#ffe0ac}
-.welcome{width:min(710px,100%);margin:auto;align-self:center;padding:12px 3px 30px}.welcome .eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:#89dbd8;text-transform:uppercase}.welcome h2{font-size:clamp(23px,5vw,31px);line-height:1.25;margin:10px 0}.welcome p{color:#bacce0;font-size:14px;margin:0 0 19px}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.choice{display:flex;flex-direction:column;gap:8px;text-align:left;background:#1a2c45;border:1px solid #456080;color:white;border-radius:17px;padding:17px;min-height:156px}.choice:hover,.choice:focus-visible{border-color:#88cbff;background:#224264}.choice .symbol{font-size:25px}.choice strong{font-size:17px}.choice span:last-child{font-size:12px;color:#b9cee5;line-height:1.5}.welcome .fine{font-size:12px;margin-top:17px;color:#8ea8c4}
-footer{padding:10px 12px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#101b2c}.controls{display:flex;align-items:center;gap:9px;margin:0 3px 9px;color:var(--muted);font-size:12px}.controls label{display:inline-flex;gap:7px;align-items:center}#wiki{accent-color:#8ccaff}.hint{margin-left:auto;text-align:right}.composer{display:flex;gap:8px;align-items:flex-end}.composer textarea{min-height:48px;max-height:130px;resize:vertical;flex:1;min-width:0;border-radius:13px;background:#0b1625;border:1px solid #39516b;color:var(--text);padding:11px 12px}.composer textarea:disabled{opacity:.55}.composer button{background:#88c9ff;color:#071a2c;border:0;border-radius:12px;font-weight:800;min-height:48px;padding:11px 17px}.composer button:disabled{opacity:.48}.note{color:#a5bad4;font-size:11px;margin:8px 4px 0}
-@media(max-width:540px){.choice-grid{grid-template-columns:1fr}.choice{min-height:auto;padding:14px;gap:4px}.welcome{margin:8px auto}.welcome h2{font-size:24px}.tabs button{padding:9px}}@media(min-width:750px){.app{border-inline:1px solid var(--line)}header{padding-inline:25px}#chat{padding-inline:28px}}
-
-/* Identidade THIGAS AI — cores inspiradas na capivara e na vegetação. */
-:root{color-scheme:light;--bg:#f7f5f1;--panel:#fffefa;--card:#fff;--line:#d8d1c8;--text:#2b241f;--muted:#5c524a;--accent:#4c523a;--ok:#27613b;--user:#4c523a}
-body{background:var(--bg)}
-.app{background:var(--panel);box-shadow:0 5px 30px #2b241f0d}
-header{background:#fff;border-color:var(--line)}
-.brand{gap:12px}.logo{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:14px;border:1px solid #e3ddd4;padding:2px}
-.brand h1{color:#4c523a;font-size:21px;letter-spacing:-.025em}.brand p{color:var(--muted)}
-.tabs button{background:#f5f2ea;color:var(--text);border-color:var(--line)}
-.tabs button small{color:#63594f}
-.tabs button.selected{background:#4c523a;color:white;border-color:#4c523a}
-.tabs button.selected small{color:#f1f0e9}
-.tabs button:focus-visible,.choice:focus-visible{outline:3px solid #a86f48;outline-offset:2px}
-.statusbar{background:#f4f0e9;color:var(--muted)}
-.statusbar button{background:white;color:var(--text);border-color:var(--line)}
-.online{color:#22603e}
-#chat{background:var(--bg);scrollbar-color:#b7b39e transparent;min-height:0}
-.bubble{background:white;border-color:#e0d9d0;box-shadow:0 2px 9px #2b241f0a;color:var(--text)}
-.bubble.user{background:#4c523a;border-color:#42492e;color:#fff}
-.sender{color:#865336}
-.bubble.user .sender{color:#e7ebd8}
-.sources a{color:#4c523a;text-decoration:underline}
-.notice{color:#754e30}
-.welcome .eyebrow{color:#686e48}
-.welcome p{color:#615c53}
-.choice{background:#fffdf9;border:1px solid #d8d1c8;color:#2b241f;min-height:156px}
-.choice:hover,.choice:focus-visible{border-color:#79805c;background:#f2f0e7}
-.choice span:last-child{color:#655b53}
-.welcome .fine{color:#645a52}
-footer{background:#fffefa;border-color:var(--line)}
-.controls{color:var(--muted)}#wiki{accent-color:#4c523a}
-.composer textarea{background:white;color:var(--text);border:1px solid #c9c4b9}
-.composer button{background:#4c523a;color:white}
-.composer button:hover:not(:disabled){background:#393f2d}
-.note{color:#685f53}
-.tools-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:3px 3px 9px}
-.tools-row .attach-btn,.tools-row button,.site-form button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #b8b6a3;background:#f2f0e8;color:#343d2e;border-radius:10px;padding:7px 11px;font:600 12px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer}
-.tools-row .attach-btn:hover,.tools-row button:hover,.site-form button:hover{background:#e4e8d8}
-.tools-row button:disabled,.tools-row label.disabled{opacity:.55;cursor:wait}
-#context-label{font-size:12px;color:#4c523a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;flex-basis:100%}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.site-panel{border:1px solid var(--line);border-radius:12px;padding:10px;background:#f6f3ec;margin-bottom:9px}
-.site-panel label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
-.site-form{display:flex;gap:7px;align-items:center}
-.site-form input{min-width:0;flex:1;border:1px solid #bfb8ae;border-radius:9px;background:white;color:var(--text);padding:8px}
-.site-form button{background:#4c523a;color:white;border-color:#4c523a}
-@media(max-width:430px){.brand .logo{width:46px;height:46px}.brand h1{font-size:19px}.brand p{font-size:11px}.site-form{flex-wrap:wrap}.site-form button{flex:1}}
-
-.brand-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.install-button{flex-shrink:0;border:1px solid #4c523a;background:#4c523a;color:#fff;border-radius:10px;font-weight:700;font-size:12px;line-height:1.35;padding:9px 11px;cursor:pointer}
-.install-button:focus-visible{outline:3px solid #a86f48;outline-offset:2px}
-.install-button:hover{background:#3e4531}
-@media(max-width:390px){.install-button{font-size:11px;padding:8px}.brand h1{font-size:18px}}
+:root{color-scheme:light;--bg:#f8f7f3;--surface:#fff;--text:#292821;--muted:#68675d;--line:#deded4;--green:#4c523a;--green-2:#3a432e;--brown:#926447;--soft:#f1f0ea;--focus:#ad7652}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:var(--bg);color:var(--text);font:15px/1.58 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}button,input,textarea{font:inherit}button{cursor:pointer;color:inherit}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}button:disabled{opacity:.48;cursor:not-allowed}[hidden]{display:none!important}
+.app{height:100dvh;min-height:350px;display:flex;flex-direction:column;position:relative}
+.topbar{flex:none;background:#fffefcdd;border-bottom:1px solid var(--line);backdrop-filter:blur(14px);z-index:4}
+.top-inner{max-width:1160px;padding:10px 22px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}.brand img{width:48px;height:48px;object-fit:contain;border-radius:13px;background:#fff;border:1px solid #ebe7dd;padding:2px}
+.brand strong{font-size:19px;letter-spacing:-.4px;color:var(--green);display:block;line-height:1.12}.brand small{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.top-actions{display:flex;align-items:center;gap:7px}.text-btn{border:1px solid var(--line);background:#fff;border-radius:11px;padding:9px 12px;font-size:13px;font-weight:650}.text-btn:hover{background:var(--soft)}
+#install-pwa{background:var(--green);color:#fff;border-color:var(--green)}
+.chat-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
+.conversation{width:min(810px,100%);margin:0 auto;padding:24px 20px 20px}
+.welcome{min-height:48vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;padding:28px 3px}
+.welcome img{width:78px;height:78px;object-fit:contain}
+.welcome h1{font-size:clamp(26px,5vw,35px);letter-spacing:-1px;margin:0;font-weight:680}
+.welcome p{max-width:440px;color:var(--muted);margin:0}
+.suggest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:min(520px,100%);margin-top:20px}
+.suggest-grid button{border:1px solid var(--line);background:#fff;text-align:left;border-radius:15px;padding:13px 15px;min-height:62px;color:var(--text);font-size:13px}
+.suggest-grid button:hover{border-color:#9ca589;background:#f8f9f4}
+.suggest-grid button b{display:block;font-size:12px;color:var(--brown);margin-bottom:2px}
+.msg{display:flex;gap:11px;align-items:flex-start;margin:23px 0}
+.msg.user{justify-content:flex-end}.msg.user .avatar{display:none}
+.avatar{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex:none;background:white;border:1px solid var(--line)}.avatar img{width:27px;height:27px;object-fit:contain}
+.msg-body{min-width:0;max-width:100%;line-height:1.7;overflow-wrap:anywhere}
+.msg.assistant .msg-body{flex:1;padding-top:3px}
+.msg.user .msg-body{max-width:min(660px,87%);background:#e7e9df;border-radius:20px 20px 6px 20px;padding:10px 15px}
+.msg-text{white-space:pre-wrap}
+.sources{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.sources a{border:1px solid #ced4bf;border-radius:9px;background:#f0f3eb;color:var(--green-2);text-decoration:none;font-size:12px;padding:5px 9px}
+.sources a:hover{text-decoration:underline}
+.message-tools{display:flex;gap:8px;margin-top:7px}
+.message-tools button{border:0;background:transparent;color:var(--muted);padding:3px 7px;font-size:12px;border-radius:8px}
+.message-tools button:hover{background:#ebece4}
+.msg.pending .msg-body{color:var(--muted)}
+.composer-zone{position:relative;flex:none;padding:10px 16px max(13px,env(safe-area-inset-bottom));background:linear-gradient(0deg,var(--bg) 82%,#f8f7f3ee)}
+.composer-wrap{width:min(810px,100%);margin:auto;position:relative}
+.editor{border:1px solid #c9c9bc;border-radius:23px;background:var(--surface);padding:13px 12px 9px;box-shadow:0 5px 22px #2b241f10}
+.editor:focus-within{border-color:#899176;box-shadow:0 5px 25px #2b241f16}
+#prompt{display:block;width:100%;resize:none;min-height:48px;max-height:180px;overflow:auto;background:transparent;color:var(--text);border:0;outline:none;line-height:1.5;padding:6px 9px;font-size:15px}
+#prompt::placeholder{color:#848578}
+.composer-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:5px}
+.tool-cluster{display:flex;align-items:center;gap:7px;min-width:0}.tool{height:38px;min-width:38px;padding:0 11px;border:0;border-radius:12px;background:transparent;display:inline-flex;gap:7px;align-items:center;justify-content:center;font-weight:650;font-size:13px}
+.tool:hover,.tool[aria-expanded="true"]{background:var(--soft)}
+.tool.icon-only{font-size:23px;font-weight:420;padding:0;width:38px}
+.tool .muted{color:var(--muted);font-weight:520}
+.tool[data-listening="true"]{color:#af2c22;background:#ffefed}
+#send{height:39px;width:39px;border:0;border-radius:13px;background:var(--green);color:#fff;font-size:20px;font-weight:700;display:grid;place-items:center}
+#send:hover:not(:disabled){background:var(--green-2)}
+.combo{position:relative}
+.popup{position:absolute;bottom:calc(100% + 9px);left:0;z-index:20;min-width:244px;max-width:min(350px,92vw);background:white;border:1px solid var(--line);border-radius:17px;box-shadow:0 18px 50px #201e1b24;padding:8px}
+.popup-title{padding:6px 11px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+.popup button{width:100%;display:flex;align-items:center;gap:11px;border:0;background:transparent;text-align:left;padding:10px;border-radius:11px;font-size:13px}
+.popup button:hover,.popup button.active{background:#f0f2ea}
+.popup button .sym{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#f4f2ea;flex:none}
+.popup small{display:block;color:var(--muted);font-size:11px}
+#effort-popup{min-width:255px}
+.quick-menu{position:absolute;bottom:calc(100% + 12px);left:3px;right:3px;z-index:22;max-height:290px;overflow:auto;border-radius:17px;border:1px solid var(--line);box-shadow:0 18px 50px #201e1b22;background:white;padding:8px}
+.quick-menu button{display:flex;text-align:left;gap:12px;align-items:center;width:100%;border:0;background:transparent;border-radius:10px;padding:9px 11px}
+.quick-menu button:hover,.quick-menu button.active{background:#eff1e9}
+.quick-menu strong{font-size:13px}.quick-menu small{display:block;color:var(--muted);font-size:11px}
+.status-line{width:min(810px,100%);margin:7px auto 0;font-size:11px;color:#76776c;text-align:center}
+#status{color:#626c4c}.status-line strong{font-weight:600}
+.attachment{display:flex;align-items:center;gap:10px;border:1px solid #c8d0bd;background:#f0f3eb;border-radius:13px;padding:9px 11px;margin-bottom:8px;color:var(--green-2);font-size:12px}
+.attachment img{width:45px;height:45px;object-fit:cover;border-radius:9px}
+.attachment span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attachment button{border:0;background:#e1e7d8;border-radius:9px;padding:5px 8px}
+.site-panel{padding:13px;background:white;border:1px solid var(--line);border-radius:15px;margin-bottom:9px}
+.site-panel label{display:block;font-weight:650;font-size:12px;margin-bottom:7px}
+.site-controls{display:flex;gap:8px}
+.site-controls input{flex:1;min-width:0;border:1px solid #c5cabc;border-radius:10px;padding:10px;background:white}
+.site-controls button{border:0;background:var(--green);color:white;border-radius:10px;font-weight:650;padding:8px 14px}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;border:1px solid #cdcbbf;background:#fffefb;padding:9px 15px;border-radius:12px;box-shadow:0 12px 35px #2222;z-index:35;color:var(--green-2);font-size:13px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:580px){
+ .top-inner{padding:8px 12px}.brand img{width:42px;height:42px}.brand strong{font-size:17px}.brand small{font-size:10px}
+ .text-btn{padding:7px 9px;font-size:12px}.conversation{padding:10px 12px 8px}.welcome{min-height:42vh}
+ .suggest-grid{grid-template-columns:1fr 1fr}.suggest-grid button{padding:10px;min-height:69px}
+ .composer-zone{padding:7px 8px max(9px,env(safe-area-inset-bottom))}.editor{border-radius:19px;padding:10px 8px 7px}
+ #prompt{font-size:16px}.tool{padding:0 7px;font-size:12px}.tool-cluster{gap:2px}
+ .popup{left:-2px}.site-controls{flex-wrap:wrap}.site-controls button{width:100%}
+ .msg.user .msg-body{max-width:90%}
+}
+@media(max-height:550px){.welcome{min-height:10vh;padding:8px}.welcome img{display:none}}
 </style>
 </head>
 <body>
 <div class="app">
-<header>
- <div class="brand-row">
-  <div class="brand"><img class="logo" src="/assets/capivara.svg" alt="Símbolo da capivara THIGAS AI"><div><h1>THIGAS AI</h1><p>Escolha como prefere receber suas respostas</p></div></div>
-  <button type="button" id="install-pwa" class="install-button" hidden>Instalar app</button>
+<header class="topbar">
+ <div class="top-inner">
+  <div class="brand">
+   <img src="/assets/capivara.svg" alt="Símbolo da capivara do THIGAS AI">
+   <div><strong>THIGAS AI</strong><small>Assistente de pesquisa e criação</small></div>
+  </div>
+  <div class="top-actions">
+   <button id="new-chat" class="text-btn" type="button">＋ Nova conversa</button>
+   <button id="install-pwa" class="text-btn" type="button" hidden>Instalar app</button>
+  </div>
  </div>
- <nav class="tabs" aria-label="Estilo das respostas">
-  <button id="tab-nano" type="button" aria-pressed="false"><strong>THIGAS nano</strong><small>Respostas rápidas e objetivas</small></button>
-  <button id="tab-mini" type="button" aria-pressed="false"><strong>THIGAS mini</strong><small>Respostas elaboradas e explicadas</small></button>
- </nav>
 </header>
-<div class="statusbar"><span id="status">Conectando...</span><button type="button" id="clear">Nova conversa</button></div>
-<main id="chat" role="log" aria-live="polite" aria-label="Conversa"></main>
-<footer>
- <div class="controls"><label id="wiki-control" hidden><input id="wiki" type="checkbox"> Consultar Wikipédia</label><span id="engine" class="hint">Escolha Nano ou Mini</span></div>
- <div class="tools-row">
-  <label class="attach-btn" for="documento" id="documento-label">Anexar documento</label>
-  <input class="sr-only" type="file" id="documento" accept=".pdf,.docx,.txt,.md,.csv" aria-label="Selecionar documento">
-  <button type="button" id="open-site">Analisar site</button>
-  <button type="button" id="clear-context" hidden>Remover anexo</button>
-  <span id="context-label" role="status" aria-live="polite"></span>
+<div id="chat-scroll" class="chat-scroll">
+ <main id="conversation" class="conversation" role="log" aria-live="polite" aria-label="Conversa"></main>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<footer class="composer-zone">
+ <div class="composer-wrap">
+  <div id="attachment" class="attachment" hidden>
+   <img id="image-preview" alt="Miniatura do anexo" hidden>
+   <span id="attachment-label"></span>
+   <button id="remove-attachment" type="button" aria-label="Remover anexo">✕</button>
+  </div>
+  <div id="site-panel" class="site-panel" hidden>
+   <label for="site-url">Analisar página pública HTTPS</label>
+   <div class="site-controls">
+    <input id="site-url" type="url" maxlength="1100" inputmode="url" placeholder="https://exemplo.org/artigo" autocomplete="url">
+    <button type="button" id="load-site">Consultar</button>
+   </div>
+  </div>
+  <div id="quick-menu" class="quick-menu" role="listbox" aria-label="Atalhos de pesquisa" hidden></div>
+  <form id="composer" class="editor">
+   <label for="prompt" class="sr-only">Mensagem para o THIGAS AI</label>
+   <textarea id="prompt" rows="2" maxlength="1600" enterkeyhint="send" placeholder="Pergunte alguma coisa...  Use @ ou / para atalhos"></textarea>
+   <div class="composer-bottom">
+    <div class="tool-cluster">
+     <div class="combo">
+      <button id="plus" type="button" class="tool icon-only" aria-label="Mais ferramentas" aria-expanded="false" aria-controls="plus-popup">＋</button>
+      <div id="plus-popup" class="popup" hidden>
+       <div class="popup-title">Adicionar à conversa</div>
+       <button type="button" data-tool="documento"><span class="sym">▤</span><span>Enviar arquivo<small>PDF, DOCX, TXT, MD ou CSV</small></span></button>
+       <button type="button" data-tool="imagem"><span class="sym">▧</span><span>Enviar imagem<small>PNG ou JPEG — leitura de texto (OCR)</small></span></button>
+       <button type="button" data-tool="site"><span class="sym">↗</span><span>Analisar site<small>Extrair conteúdo de uma página HTTPS</small></span></button>
+       <button type="button" data-tool="wikipedia"><span class="sym">W</span><span id="wiki-action-text">Ativar Wikipédia<small>Buscar artigos como fontes</small></span></button>
+      </div>
+     </div>
+     <div class="combo">
+      <button id="effort" type="button" class="tool" aria-label="Escolher nível de esforço" aria-expanded="false" aria-controls="effort-popup"><span>Esforço:</span> <span id="effort-label">Equilibrado</span> <span class="muted">⌄</span></button>
+      <div id="effort-popup" class="popup" hidden>
+       <div class="popup-title">Nível de esforço da resposta</div>
+       <button type="button" data-effort="rapido"><span class="sym">⚡</span><span>Rápido<small>Respostas diretas e curtas</small></span></button>
+       <button type="button" data-effort="equilibrado"><span class="sym">☷</span><span>Equilibrado<small>Explicação com contexto</small></span></button>
+       <button type="button" data-effort="alto"><span class="sym">✦</span><span>Alto<small>Mais detalhes, exemplos e ressalvas</small></span></button>
+      </div>
+     </div>
+     <button id="mic" type="button" class="tool icon-only" aria-label="Ditado por voz" title="Falar para escrever">🎤</button>
+    </div>
+    <button type="submit" id="send" aria-label="Enviar mensagem" disabled>↑</button>
+   </div>
+  </form>
+  <input type="file" id="document-file" class="sr-only" accept=".pdf,.docx,.txt,.md,.csv" aria-label="Selecionar documento">
+  <input type="file" id="image-file" class="sr-only" accept="image/png,image/jpeg" aria-label="Selecionar imagem">
  </div>
- <div class="site-panel" id="site-panel" hidden>
-  <label for="site-url">Endereço HTTPS público para análise</label>
-  <div class="site-form"><input id="site-url" type="url" inputmode="url" maxlength="1100" placeholder="https://exemplo.org/artigo" autocomplete="url"><button type="button" id="read-site">Consultar página</button></div>
- </div>
- <form id="form" class="composer"><textarea id="question" maxlength="1600" rows="2" placeholder="Escolha Nano ou Mini para começar..." aria-label="Sua pergunta" disabled></textarea><button type="submit" id="send" disabled>Enviar</button></form>
- <p class="note" id="explain">O THIGAS AI tem dois estilos de resposta. Você pode alternar a qualquer momento.</p>
-<p class="note">Os trechos anexados são enviados ao serviço de IA quando você faz uma pergunta. Evite documentos confidenciais.</p>
+ <div class="status-line"><span id="status">Conectando...</span> · Use <strong>@</strong> para fontes e <strong>/</strong> para comandos. Microfone depende do navegador.</div>
 </footer>
 </div>
 <script>
 'use strict';
-const el=id=>document.getElementById(id),chat=el('chat'),input=el('question'),send=el('send');
-const hist={nano:[],mini:[]},transcript={nano:[],mini:[]},contexts={nano:null,mini:null};
-const key='thigas_ai_modo';let saved=null;
-try{const s=localStorage.getItem(key);if(s==='nano'||s==='mini')saved=s}catch(_){/* Armazenamento indisponível: pedir escolha. */}
-let mode=location.pathname==='/nano'?'nano':location.pathname==='/mini'?'mini':saved;
-let busy=false,online=false;
-function sourcesOk(items){return Array.isArray(items)?items.filter(x=>x&&typeof x.titulo==='string'&&typeof x.url==='string'&&x.url.startsWith('https://pt.wikipedia.org/')).slice(0,5):[]}
-function add(item){
- const node=document.createElement('article');node.className='bubble '+(item.role==='user'?'user':'assistant');
- const sender=document.createElement('span');sender.className='sender';sender.textContent=item.role==='user'?'Você':mode==='nano'?'THIGAS nano':'THIGAS mini';node.append(sender);
- const msg=document.createElement('span');msg.textContent=item.content;node.append(msg);
- if(item.notice){const n=document.createElement('div');n.className='notice';n.textContent=item.notice;node.append(n)}
- const ss=sourcesOk(item.sources);if(ss.length){const box=document.createElement('div');box.className='sources';const title=document.createElement('strong');title.textContent='Fontes consultadas';box.append(title);ss.forEach((s,i)=>{const a=document.createElement('a');a.href=s.url;a.rel='noopener noreferrer';a.target='_blank';a.textContent=`[${i+1}] ${s.titulo}`;box.append(a)});node.append(box)}
- chat.append(node);chat.scrollTop=chat.scrollHeight;return node;
+const $=id=>document.getElementById(id);
+const chat=$('conversation'),scroll=$('chat-scroll'),input=$('prompt'),send=$('send');
+const state={history:[],messages:[],context:null,image:null,wiki:false,busy:false,effort:'equilibrado',recording:false,recognition:null};
+const labels={rapido:'Rápido',equilibrado:'Equilibrado',alto:'Alto'};
+try{
+ const stored=localStorage.getItem('thigas_effort');
+ const old=localStorage.getItem('thigas_ai_modo');
+ state.effort=labels[stored]?stored:(location.pathname==='/nano'||old==='nano'?'rapido':'equilibrado');
+}catch(_){}
+if(location.pathname==='/mini')state.effort='equilibrado';
+function announce(s,ms=3800){
+ const t=$('toast');t.textContent=s;t.hidden=false;
+ clearTimeout(announce.handle);announce.handle=setTimeout(()=>{t.hidden=true},ms);
 }
-function showChoice(){
- const section=document.createElement('section');section.className='welcome';
- section.innerHTML='<span class="eyebrow">Bem-vindo ao THIGAS AI</span><h2>Você prefere respostas rápidas ou mais elaboradas?</h2><p>Escolha o estilo ideal para esta conversa. Você pode trocar de modo quando quiser.</p><div class="choice-grid"><button type="button" class="choice" id="choice-nano"><span class="symbol" aria-hidden="true">⚡</span><strong>THIGAS nano</strong><span>Respostas curtas, diretas e práticas. Permite consultar a Wikipédia quando você desejar.</span></button><button type="button" class="choice" id="choice-mini"><span class="symbol" aria-hidden="true">✦</span><strong>THIGAS mini</strong><span>Respostas detalhadas, com contexto, exemplos e explicações passo a passo.</span></button></div><p class="fine">Os dois modos utilizam o serviço configurado pelo administrador. A escolha modifica o estilo e a extensão da resposta.</p>';
- chat.append(section);section.querySelector('#choice-nano').onclick=()=>choose('nano');section.querySelector('#choice-mini').onclick=()=>choose('mini');
+function jump(){scroll.scrollTop=scroll.scrollHeight}
+function resize(){input.style.height='auto';input.style.height=Math.min(180,Math.max(48,input.scrollHeight))+'px';send.disabled=state.busy||(!input.value.trim()&&!state.image)}
+function safeSources(items){
+ return Array.isArray(items)?items.filter(x=>x&&typeof x.titulo==='string'&&typeof x.url==='string'&&x.url.startsWith('https://pt.wikipedia.org/')).slice(0,4):[];
 }
-function refreshContext(){
- const info=el('context-label'),ctx=contexts[mode]||null;
- info.textContent=ctx?(ctx.tipo==='site'?'Site: ':'Documento: ')+ctx.titulo:'';
- el('clear-context').hidden=!ctx;
- el('documento').disabled=busy||mode===null;
- el('open-site').disabled=busy||mode===null;
- el('documento-label').classList.toggle('disabled',busy||mode===null);
+function renderMessage(item){
+ const article=document.createElement('article');article.className='msg '+item.role;
+ if(item.role==='assistant'){
+  const ava=document.createElement('div');ava.className='avatar';const img=document.createElement('img');
+  img.src='/assets/capivara.svg';img.alt='THIGAS AI';ava.append(img);article.append(ava);
+ }
+ const body=document.createElement('div');body.className='msg-body';
+ const content=document.createElement('div');content.className='msg-text';content.textContent=item.text;body.append(content);
+ if(item.notice){const note=document.createElement('div');note.style.color='#8b6541';note.style.fontSize='12px';note.textContent=item.notice;body.append(note)}
+ if(item.role==='assistant'){
+  const sources=safeSources(item.sources);
+  if(sources.length){const panel=document.createElement('div');panel.className='sources';
+   sources.forEach((s,i)=>{const a=document.createElement('a');a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='['+(i+1)+'] '+s.titulo;panel.append(a)});body.append(panel);
+  }
+  const actions=document.createElement('div');actions.className='message-tools';const copy=document.createElement('button');
+  copy.type='button';copy.textContent='Copiar';copy.onclick=async()=>{try{await navigator.clipboard.writeText(item.text);announce('Resposta copiada.')}catch(_){announce('Não foi possível copiar.')}};actions.append(copy);body.append(actions);
+ }
+ article.append(body);chat.append(article);jump();return article;
 }
-async function requestContext(url,data){
- const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
- const body=await response.json();
- if(!response.ok)throw Error(body.erro||'Não foi possível analisar o material.');
- return body;
-}
-el('documento').addEventListener('change',async function(){
- const file=this.files&&this.files[0];if(!file||!mode||busy)return;
- const current=mode;this.value='';
- if(file.size>1500000){el('context-label').textContent='Arquivo muito grande (limite: 1,5 MB).';return}
- busy=true;send.disabled=true;refreshContext();
- el('context-label').textContent='Extraindo texto do documento...';
- try{
-  const base64=await new Promise((ok,bad)=>{const r=new FileReader();r.onerror=()=>bad(Error('Não foi possível ler o arquivo.'));r.onload=()=>ok(String(r.result).split(',')[1]||'');r.readAsDataURL(file)});
-  const data=await requestContext('/api/documento',{nome:file.name,base64:base64});
-  contexts[current]=data;refreshContext();
-  el('context-label').textContent='Documento anexado: '+data.titulo+'. '+(data.aviso||'Pronto para perguntas.');
-  if(!input.value.trim())input.value='Resuma o documento anexado e destaque os pontos principais.';
- }catch(err){el('context-label').textContent='Falha no documento: '+String(err.message||err)}
- finally{busy=false;refreshContext();send.disabled=mode===null;input.focus()}
-});
-el('open-site').addEventListener('click',()=>{el('site-panel').hidden=!el('site-panel').hidden;if(!el('site-panel').hidden)el('site-url').focus()});
-el('read-site').addEventListener('click',async()=>{
- const url=el('site-url').value.trim(),current=mode;
- if(!current||busy)return;
- if(!url.startsWith('https://')){el('context-label').textContent='Use uma URL iniciada por https://';return}
- busy=true;send.disabled=true;refreshContext();el('context-label').textContent='Lendo o texto público do site...';
- try{
-  const data=await requestContext('/api/site',{url:url});
-  contexts[current]=data;el('site-panel').hidden=true;refreshContext();
-  el('context-label').textContent='Site anexado: '+data.titulo+'. '+(data.aviso||'Pronto para análise.');
-  if(!input.value.trim())input.value='Analise essa página e resuma os pontos principais.';
- }catch(err){el('context-label').textContent='Falha na análise: '+String(err.message||err)}
- finally{busy=false;refreshContext();send.disabled=mode===null;input.focus()}
-});
-el('clear-context').addEventListener('click',()=>{if(busy||!mode)return;contexts[mode]=null;refreshContext()});
-function draw(){
- const nano=mode==='nano',mini=mode==='mini';
- el('tab-nano').classList.toggle('selected',nano);el('tab-mini').classList.toggle('selected',mini);
- el('tab-nano').setAttribute('aria-pressed',String(nano));el('tab-mini').setAttribute('aria-pressed',String(mini));
- el('wiki-control').hidden=!nano;
- refreshContext();
- el('engine').textContent=mode===null?'Escolha Nano ou Mini':nano?'Nano · resposta objetiva':'Mini · resposta detalhada';
- el('explain').textContent=mode===null?'Selecione um estilo de resposta para começar.':nano?'Respostas diretas. A pesquisa na Wikipédia é opcional e pode levar um pouco mais de tempo.':'Explicações mais completas, com exemplos quando úteis.';
- input.disabled=mode===null;send.disabled=mode===null||busy;
- input.placeholder=mode===null?'Escolha Nano ou Mini para começar...':nano?'Faça uma pergunta ao THIGAS nano...':'Faça uma pergunta ao THIGAS mini...';
+function welcome(){
  chat.replaceChildren();
- if(mode===null){showChoice();return}
- if(!transcript[mode].length)add({role:'assistant',content:nano?'Olá! Sou o THIGAS nano. Vou responder de forma rápida e objetiva. Se precisar de fontes, ative a opção Wikipédia.':'Olá! Sou o THIGAS mini. Vou oferecer explicações mais elaboradas, com exemplos e contexto. O que você gostaria de saber?'});
- else transcript[mode].forEach(add);
- input.focus();
+ const sec=document.createElement('section');sec.className='welcome';
+ const img=document.createElement('img');img.src='/assets/capivara.svg';img.alt='';sec.append(img);
+ const h=document.createElement('h1');h.textContent='Como posso ajudar?';sec.append(h);
+ const p=document.createElement('p');p.textContent='Converse, pesquise na Wikipédia ou analise arquivos e sites. Ajuste o nível de esforço próximo ao botão +.';sec.append(p);
+ const grid=document.createElement('div');grid.className='suggest-grid';
+ const suggestions=[
+  ['Pesquisar','Quem foi Albert Einstein?','wiki'],
+  ['Educação','Crie uma atividade sobre cidadania digital para o 7º ano.',''],
+  ['Programação','Explique como criar um jogo simples em HTML.',''],
+  ['Analisar documentos','Resuma os pontos mais importantes deste arquivo.','documento']
+ ];
+ suggestions.forEach(([t,prompt,tool])=>{const b=document.createElement('button');b.type='button';const title=document.createElement('b');title.textContent=t;b.append(title,document.createTextNode(prompt));b.onclick=()=>{
+    if(tool==='documento'){chooseTool('documento');return}
+    if(tool==='wiki'){state.wiki=true;announce('Pesquisa na Wikipédia ativada.')}
+    input.value=prompt;resize();input.focus();};grid.append(b)});
+ sec.append(grid);chat.append(sec);
 }
-function choose(next){if(busy||!['nano','mini'].includes(next))return;mode=next;try{localStorage.setItem(key,next)}catch(_){}history.replaceState(null,'',next==='nano'?'/nano':'/mini');draw()}
-el('tab-nano').onclick=()=>choose('nano');el('tab-mini').onclick=()=>choose('mini');
-el('clear').onclick=()=>{if(!mode||busy)return;hist[mode]=[];transcript[mode]=[];contexts[mode]=null;draw()};
-fetch('/api/status').then(async r=>{if(!r.ok)throw Error(String(r.status));return r.json()}).then(data=>{online=!!data.ok;el('status').textContent=online?'● THIGAS AI online':'Serviço em configuração';el('status').classList.toggle('online',online)}).catch(()=>{el('status').textContent='Servidor inicializando ou indisponível'});
-input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!input.disabled)el('form').requestSubmit()}});
-el('form').addEventListener('submit',async e=>{
- e.preventDefault();if(!mode||busy)return;const q=input.value.trim();if(!q)return;
- const current=mode,wiki=current==='nano'&&el('wiki').checked,prior=hist[current].slice(-8);
- transcript[current].push({role:'user',content:q});add({role:'user',content:q});input.value='';busy=true;send.disabled=true;
- const progress=add({role:'assistant',content:wiki?'Consultando a Wikipédia e preparando a resposta...':current==='nano'?'Preparando uma resposta rápida...':'Elaborando sua resposta...'});progress.classList.add('pending');
- try{
-  const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modo:current,pergunta:q,historico:prior,wikipedia:wiki,contexto:contexts[current]})});
-  const data=await response.json();if(!response.ok)throw Error(data.erro||'Falha HTTP '+response.status);
-  progress.remove();const item={role:'assistant',content:data.resposta||'Não recebi uma resposta.',sources:data.fontes||[],notice:data.aviso||''};
-  transcript[current].push(item);add(item);
-  hist[current].push({role:'user',content:q},{role:'assistant',content:item.content});hist[current]=hist[current].slice(-8);
- }catch(err){progress.remove();const item={role:'assistant',content:'Não consegui responder agora: '+String(err.message||'Falha de conexão.')};transcript[current].push(item);add(item)}
- finally{busy=false;send.disabled=false;input.focus()}
-});
-window.addEventListener('popstate',()=>{if(busy)return;const path=location.pathname;mode=path==='/nano'?'nano':path==='/mini'?'mini':saved;draw()});
-
-// PWA: instalação nativa no Android sem expor credenciais nem cachear conversas.
-let pendingInstall=null;
-window.addEventListener('beforeinstallprompt',event=>{
- event.preventDefault();
- pendingInstall=event;
- el('install-pwa').hidden=false;
-});
-el('install-pwa').addEventListener('click',async()=>{
- if(!pendingInstall)return;
- const trigger=pendingInstall;
- pendingInstall=null;
- el('install-pwa').hidden=true;
- try{await trigger.prompt()}catch(_){}
-});
-window.addEventListener('appinstalled',()=>{pendingInstall=null;el('install-pwa').hidden=true});
-if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
- window.addEventListener('load',()=>{
-  navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});
+function updateEffort(){
+ $('effort-label').textContent=labels[state.effort];
+ document.querySelectorAll('[data-effort]').forEach(b=>{
+  const on=b.dataset.effort===state.effort;b.classList.toggle('active',on);b.setAttribute('aria-checked',String(on))
  });
 }
-draw();
+function chooseEffort(value){
+ if(!labels[value])return;
+ state.effort=value;try{localStorage.setItem('thigas_effort',value)}catch(_){}
+ updateEffort();closePopups();
+}
+function togglePopup(button,popup){
+ const open=popup.hidden;closePopups();
+ if(open){popup.hidden=false;button.setAttribute('aria-expanded','true')}
+}
+function closePopups(){
+ for(const [button,popup] of [['plus','plus-popup'],['effort','effort-popup']]){
+  $(popup).hidden=true;$(button).setAttribute('aria-expanded','false');
+ }
+}
+$('plus').onclick=()=>togglePopup($('plus'),$('plus-popup'));
+$('effort').onclick=()=>togglePopup($('effort'),$('effort-popup'));
+document.querySelectorAll('[data-effort]').forEach(b=>b.onclick=()=>chooseEffort(b.dataset.effort));
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>chooseTool(b.dataset.tool));
+document.addEventListener('pointerdown',e=>{
+ if(!e.target.closest('.combo'))closePopups();
+ if(!e.target.closest('#quick-menu')&&!e.target.closest('#prompt'))hideQuick();
+});
+function chooseTool(name){
+ closePopups();hideQuick();
+ if(state.busy)return;
+ if(name==='documento'){$('document-file').click();return}
+ if(name==='imagem'){$('image-file').click();return}
+ if(name==='site'){$('site-panel').hidden=false;$('site-url').focus();return}
+ if(name==='wikipedia'){state.wiki=!state.wiki;updateWiki();announce(state.wiki?'Wikipédia ativada.':'Wikipédia desativada.');input.focus();}
+}
+function updateWiki(){
+ $('wiki-action-text').innerHTML='';
+ const title=document.createTextNode(state.wiki?'Desativar Wikipédia':'Ativar Wikipédia');
+ const small=document.createElement('small');small.textContent=state.wiki?'A busca está ativada':'Buscar artigos como fontes';
+ $('wiki-action-text').append(title,small);
+}
+function updateAttachment(){
+ const a=$('attachment'),preview=$('image-preview');
+ if(state.image){
+  a.hidden=false;preview.hidden=false;preview.src=state.image.dados;
+  $('attachment-label').textContent='Imagem: '+state.image.nome+' (OCR de texto)';
+ }else if(state.context){
+  a.hidden=false;preview.hidden=true;preview.removeAttribute('src');
+  $('attachment-label').textContent=(state.context.tipo==='site'?'Site: ':'Arquivo: ')+state.context.titulo;
+ }else{
+  a.hidden=true;preview.hidden=true;preview.removeAttribute('src');
+ }
+}
+$('remove-attachment').onclick=()=>{state.image=null;state.context=null;updateAttachment();announce('Anexo removido.')};
+function fromFile(file){
+ return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(Error('Não foi possível abrir o arquivo.'));
+ reader.onload=()=>resolve(String(reader.result).split(',')[1]||'');reader.readAsDataURL(file)});
+}
+async function callTool(path,payload){
+ const res=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
+ let data={};try{data=await res.json()}catch(_){}
+ if(!res.ok)throw Error(data.erro||'Não foi possível concluir a operação.');
+ return data;
+}
+function setBusy(b){
+ state.busy=b;send.disabled=b;$('plus').disabled=b;$('mic').disabled=b;
+ $('document-file').disabled=b;$('image-file').disabled=b;$('load-site').disabled=b;resize();
+}
+$('document-file').onchange=async e=>{
+ const file=e.target.files?.[0];e.target.value='';if(!file||state.busy)return;
+ if(file.size>1500000){announce('Arquivo muito grande. Limite de 1,5 MB.');return}
+ setBusy(true);announce('Lendo documento...',8000);
+ try{
+  const b64=await fromFile(file);
+  const data=await callTool('/api/documento',{nome:file.name,base64:b64});
+  state.context=data;state.image=null;updateAttachment();
+  if(!input.value.trim())input.value='Resuma os pontos principais do documento anexado.';
+  resize();announce('Documento preparado para análise.');input.focus();
+ }catch(err){announce('Falha no arquivo: '+String(err.message||err),6000)}
+ finally{setBusy(false)}
+};
+async function reduceImage(file){
+ if(!/^image\/(jpeg|png)$/.test(file.type))throw Error('Use PNG ou JPEG.');
+ if(file.size>10*1024*1024)throw Error('A imagem original não pode passar de 10 MB.');
+ const original=URL.createObjectURL(file);
+ try{
+  const img=await new Promise((ok,bad)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=()=>bad(Error('Imagem inválida.'));im.src=original});
+  if(img.naturalWidth*img.naturalHeight>50_000_000)throw Error('Resolução da imagem muito alta.');
+  let max=1400,quality=.82;
+  for(let i=0;i<5;i++){
+   const scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+   const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+   const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas indisponível.');
+   ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
+   const data=canvas.toDataURL('image/jpeg',quality);
+   if(data.length<1_220_000)return data;
+   max=Math.round(max*.77);quality=Math.max(.51,quality-.08);
+  }
+  throw Error('A imagem não pôde ser reduzida para o limite permitido.');
+ }finally{URL.revokeObjectURL(original)}
+}
+$('image-file').onchange=async e=>{
+ const file=e.target.files?.[0];e.target.value='';if(!file||state.busy)return;
+ setBusy(true);announce('Preparando imagem...',7000);
+ try{
+  const dados=await reduceImage(file);
+  state.image={nome:file.name.slice(0,120),dados};state.context=null;updateAttachment();
+  if(!input.value.trim())input.value='Leia o texto legível nesta imagem e explique o conteúdo.';
+  resize();announce('Imagem anexada. A análise usa OCR, não visão completa.');input.focus();
+ }catch(err){announce('Falha na imagem: '+String(err.message||err),6500)}
+ finally{setBusy(false)}
+};
+$('load-site').onclick=async()=>{
+ const url=$('site-url').value.trim();
+ if(!url.startsWith('https://')){announce('Informe um endereço HTTPS público.');return}
+ setBusy(true);announce('Consultando página...',8000);
+ try{
+  const data=await callTool('/api/site',{url});
+  state.context=data;state.image=null;updateAttachment();$('site-panel').hidden=true;
+  if(!input.value.trim())input.value='Resuma e analise os principais pontos desta página.';
+  resize();announce('Página preparada para análise.');input.focus();
+ }catch(err){announce('Falha no site: '+String(err.message||err),6500)}
+ finally{setBusy(false)}
+};
+const menuEntries=[
+ {key:'@wikipedia',title:'Wikipédia',desc:'Usar artigos da Wikipédia como fontes',type:'wikipedia'},
+ {key:'@arquivo',title:'Documento',desc:'Abrir seletor de arquivo',type:'documento'},
+ {key:'@imagem',title:'Imagem',desc:'Anexar PNG ou JPEG para OCR',type:'imagem'},
+ {key:'@site',title:'Site',desc:'Ler uma página pública HTTPS',type:'site'},
+ {key:'/resumir',title:'Resumir',desc:'Criar resumo do texto ou anexo',type:'insert',insert:'Resuma com clareza e destaque os pontos principais: '},
+ {key:'/explicar',title:'Explicar',desc:'Dar uma explicação didática',type:'insert',insert:'Explique de maneira didática, com exemplos: '},
+ {key:'/pesquisar',title:'Pesquisar',desc:'Consultar a Wikipédia',type:'search',insert:'Pesquise na Wikipédia e cite as fontes: '},
+ {key:'/codigo',title:'Programação',desc:'Gerar ou explicar código',type:'insert',insert:'Ajude-me com programação. Escreva código completo e explique: '},
+ {key:'/limpar',title:'Nova conversa',desc:'Limpar mensagens e anexos',type:'clear'},
+ {key:'/ajuda',title:'Ajuda',desc:'Mostrar os comandos disponíveis',type:'help'}
+];
+let currentMatches=[],quickIndex=0,tokenInfo=null;
+function hideQuick(){currentMatches=[];tokenInfo=null;$('quick-menu').hidden=true;$('quick-menu').replaceChildren()}
+function buildQuick(){
+ const pos=input.selectionStart??input.value.length;
+ const before=input.value.slice(0,pos);
+ const found=before.match(/(^|\s)([@/])([a-zA-ZÀ-ÿ-]*)$/);
+ if(!found){hideQuick();return}
+ const prefix=found[2],query=found[3].toLocaleLowerCase('pt-BR');
+ const entries=menuEntries.filter(e=>e.key.startsWith(prefix)&&e.key.toLocaleLowerCase('pt-BR').includes(query)).slice(0,8);
+ if(!entries.length){hideQuick();return}
+ currentMatches=entries;quickIndex=0;
+ tokenInfo={start:pos-(prefix.length+found[3].length),end:pos};
+ renderQuick();
+}
+function renderQuick(){
+ const list=$('quick-menu');list.replaceChildren();list.hidden=false;
+ currentMatches.forEach((e,i)=>{
+  const b=document.createElement('button');b.type='button';b.className=i===quickIndex?'active':'';
+  b.setAttribute('role','option');b.setAttribute('aria-selected',String(i===quickIndex));
+  const sym=document.createElement('strong');sym.textContent=e.key;
+  const text=document.createElement('span');text.textContent=e.title;
+  const desc=document.createElement('small');desc.textContent=e.desc;text.append(desc);
+  b.append(sym,text);b.onmousedown=ev=>ev.preventDefault();b.onclick=()=>applyQuick(e);
+  list.append(b);
+ });
+}
+function applyQuick(entry){
+ const t=tokenInfo;if(!t)return;
+ const initial=input.value,head=initial.slice(0,t.start),tail=initial.slice(t.end);
+ input.value=head+(entry.insert||'')+tail;hideQuick();resize();
+ if(entry.type==='wikipedia'){state.wiki=true;updateWiki();announce('Wikipédia ativada.')}
+ else if(entry.type==='documento'||entry.type==='imagem'||entry.type==='site'){chooseTool(entry.type)}
+ else if(entry.type==='search'){state.wiki=true;updateWiki()}
+ else if(entry.type==='clear'){newChat();return}
+ else if(entry.type==='help'){announce('Use @wikipedia, @arquivo, @imagem, @site e /resumir, /explicar, /pesquisar, /codigo, /limpar.',7800)}
+ input.focus();
+}
+input.addEventListener('input',()=>{resize();buildQuick()});
+input.addEventListener('click',()=>{if(!$('quick-menu').hidden)buildQuick()});
+input.addEventListener('keydown',e=>{
+ if(!$('quick-menu').hidden){
+  if(e.key==='ArrowDown'){e.preventDefault();quickIndex=(quickIndex+1)%currentMatches.length;renderQuick();return}
+  if(e.key==='ArrowUp'){e.preventDefault();quickIndex=(quickIndex+currentMatches.length-1)%currentMatches.length;renderQuick();return}
+  if(e.key==='Escape'){e.preventDefault();hideQuick();return}
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();applyQuick(currentMatches[quickIndex]);return}
+ }
+ if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();$('composer').requestSubmit()}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closePopups();hideQuick();$('site-panel').hidden=true}});
+function newChat(){
+ if(state.busy)return;
+ state.history=[];state.messages=[];state.context=null;state.image=null;
+ state.wiki=false;updateWiki();updateAttachment();input.value='';resize();
+ $('site-panel').hidden=true;hideQuick();closePopups();welcome();input.focus();
+}
+$('new-chat').onclick=newChat;
+// Ditado, com consentimento solicitado pelo navegador no clique do microfone.
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+$('mic').onclick=()=>{
+ if(!SR){announce('Ditado não disponível neste navegador. Use o microfone do teclado do celular.',6500);return}
+ if(state.recording){state.recognition?.stop();return}
+ if(state.busy)return;
+ const rec=new SR();state.recognition=rec;rec.lang='pt-BR';rec.interimResults=true;rec.continuous=false;
+ let base=input.value.trim();let lastText='';
+ rec.onstart=()=>{state.recording=true;$('mic').dataset.listening='true';$('mic').setAttribute('aria-label','Parar ditado');announce('Ouvindo… fale em português.')};
+ rec.onresult=ev=>{
+  let text='';for(let i=0;i<ev.results.length;i++)text+=ev.results[i][0].transcript+' ';
+  lastText=text.trim();input.value=(base?base+' ':'')+lastText;resize();
+ };
+ rec.onerror=ev=>{if(ev.error==='not-allowed')announce('Permissão do microfone recusada.');else if(ev.error!=='no-speech')announce('Ditado interrompido: '+ev.error)};
+ rec.onend=()=>{state.recording=false;delete $('mic').dataset.listening;$('mic').setAttribute('aria-label','Ditado por voz');state.recognition=null;input.focus()};
+ try{rec.start()}catch(_){announce('Não foi possível iniciar o ditado.')}
+};
+function removeWikiMention(text){
+ const found=/(?:^|\s)@(?:wikipedia|wiki)\b/iu.test(text);
+ return {found,text:text.replace(/(?:^|\s)@(?:wikipedia|wiki)\b/giu,' ').trim()};
+}
+$('composer').addEventListener('submit',async event=>{
+ event.preventDefault();if(state.busy)return;
+ hideQuick();closePopups();
+ const parsed=removeWikiMention(input.value.trim());
+ const hasImage=!!state.image;
+ const q=parsed.text||(hasImage?'Extraia o texto legível da imagem e explique.':'');
+ if(!q)return;
+ if(q.length>1600){announce('Pergunta muito longa. Limite de 1600 caracteres.');return}
+ if($('site-panel').hidden===false){$('site-panel').hidden=true}
+ const wiki=state.wiki||parsed.found;
+ const attachment=state.image,context=state.context,effort=state.effort;
+ input.value='';resize();
+ const welcomeNode=chat.querySelector('.welcome');if(welcomeNode)welcomeNode.remove();
+ const visible=q+(attachment?'\n[Imagem anexada: '+attachment.nome+']':'')+(context?'\n[Referência: '+context.titulo+']':'');
+ renderMessage({role:'user',text:visible});
+ state.messages.push({role:'user',text:q});
+ const pending=renderMessage({role:'assistant',text:wiki?'Consultando fontes e preparando resposta...':attachment?'Lendo o texto da imagem...':'Preparando resposta...'});
+ pending.classList.add('pending');
+ setBusy(true);
+ try{
+  const payload={modo:effort==='rapido'?'nano':'mini',esforco:effort,
+   pergunta:q,historico:state.history.slice(-8),wikipedia:wiki,contexto:context,imagem:attachment};
+  const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});
+  let data={};try{data=await res.json()}catch(_){}
+  if(!res.ok)throw Error(data.erro||'HTTP '+res.status);
+  pending.remove();
+  const answer={role:'assistant',text:data.resposta||'Não foi possível gerar texto.',sources:data.fontes||[],notice:data.aviso||''};
+  state.messages.push(answer);renderMessage(answer);
+  state.history.push({role:'user',content:q},{role:'assistant',content:answer.text});state.history=state.history.slice(-8);
+  if(attachment===state.image){state.image=null;updateAttachment()}
+ }catch(err){pending.remove();
+  const message='Não consegui responder agora: '+String(err.message||'Falha de conexão.');
+  state.messages.push({role:'assistant',text:message});renderMessage({role:'assistant',text:message});
+ }finally{setBusy(false);input.focus()}
+});
+fetch('/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(Error('offline'))).then(d=>{
+ $('status').textContent=d.ok?'● THIGAS AI online':'Servidor iniciando';
+}).catch(()=>{$('status').textContent='Sem conexão com o servidor'});
+updateEffort();updateWiki();updateAttachment();resize();welcome();
+let pendingInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pendingInstall=e;$('install-pwa').hidden=false});
+$('install-pwa').onclick=async()=>{if(!pendingInstall)return;const p=pendingInstall;pendingInstall=null;$('install-pwa').hidden=true;try{await p.prompt()}catch(_){}};
+window.addEventListener('appinstalled',()=>{pendingInstall=null;$('install-pwa').hidden=true});
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+ window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{}));
+}
 </script>
 </body>
 </html>
