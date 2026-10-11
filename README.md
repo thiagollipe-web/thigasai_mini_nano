@@ -7,6 +7,29 @@ Portal web protegido por senha, com dois **estilos de resposta** sob a identidad
 
 Ao entrar pela primeira vez em `/`, o visitante escolhe: **"Você prefere respostas rápidas ou mais elaboradas?"**. O modo pode ser alterado a qualquer momento pelos botões superiores. Somente essa escolha de estilo fica salva no navegador; o histórico da conversa não persiste após recarregar a página.
 
+## Documentos e análise de sites (v0.7)
+
+No chat, após escolher Nano ou Mini, use **Anexar documento** ou **Analisar site**.
+São aceitos PDFs textuais (até 25 páginas), DOCX, TXT, Markdown e CSV, com
+**limite de 1,5 MB por arquivo**. A extração utiliza até **12 mil caracteres**.
+PDFs digitalizados/escaneados não dispõem de OCR. Para páginas online, são
+aceitas URLs **HTTPS públicas** em HTML ou texto; sites que exigem login, fazem
+carregamento por JavaScript ou bloqueiam robôs podem não funcionar.
+
+Cada modo mantém somente **um contexto ativo por vez**, guardado na memória do
+navegador durante a sessão. Trocar o anexo substitui o anterior; **Remover anexo**
+apaga o contexto selecionado. Não há biblioteca persistente de documentos.
+
+**Privacidade:** o servidor extrai o texto e o devolve ao navegador. Quando você
+envia uma pergunta com um documento ou site anexado, o trecho utilizado é enviado
+à API de geração de respostas configurada pelo administrador. Não envie documentos
+sigilosos nem dados de alunos sem autorização e base legal adequada. As consultas
+à Wikipédia continuam independentes.
+
+**Marca:** o arquivo SVG em assets/capivara.svg é uma adaptação vetorial criada a
+partir da referência visual da capivara. Para reproduzir o desenho PNG original
+exatamente, será necessário adicioná-lo ao repositório e ajustar o caminho no HTML.
+
 ## Informação técnica para o administrador
 
 O nome do provedor de IA e o identificador do modelo **não aparecem na interface**, na API pública de status nem nas mensagens de erro apresentadas pelo site. A chave de acesso nunca é enviada ao navegador. Ainda assim, a arquitetura deve ser descrita com transparência se houver uma pergunta técnica direta.
