@@ -19,14 +19,17 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from thigas_wiki import THIGASError, ler_config, conversa, api_chat, validar_url
+from site_tools import ContextError, documento, site, validar_contexto
 
 BASE = Path(__file__).resolve().parent
 INDEX = (BASE / 'index.html').read_bytes()
+CAPIVARA = (BASE / 'assets' / 'capivara.svg').read_bytes()
 USER = os.environ.get('THIGAS_SITE_USER', 'thigas')
 PASSWORD = os.environ.get('THIGAS_SITE_PASSWORD', '')
 RATE_LOCK = threading.Lock()
 INFLIGHT = threading.BoundedSemaphore(2)
 CALL_TIMES: list[float] = []
+TOOL_TIMES: list[float] = []
 
 MINI_SYSTEM = (
     'Você é o THIGAS mini, modo de respostas elaboradas do projeto THIGAS AI. '
@@ -77,7 +80,7 @@ def remote_mini_config() -> dict | None:
     }
 
 
-def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict) -> dict:
+def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict, contexto: str = '') -> dict:
     base = remote_mini_config()
     # Sem endpoint remoto: perfil Mini usa Sabiázinho, NÃO o GGUF original.
     cfg = (base if base else cloud_cfg).copy()
@@ -94,7 +97,7 @@ def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict) -> dict:
     for h in historico[-8:]:
         if isinstance(h, dict) and h.get('role') in ('user', 'assistant'):
             messages.append({'role': h['role'], 'content': str(h.get('content', ''))[:2200]})
-    messages.append({'role': 'user', 'content': pergunta[:1600]})
+    messages.append({'role': 'user', 'content': pergunta[:1600] + contexto})
     resposta = api_chat(cfg, messages)
     return {'resposta': resposta, 'fontes': [], 'aviso': '', 'modo': 'mini'}
 
@@ -110,7 +113,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('X-Frame-Options', 'DENY')
         self.send_header('Referrer-Policy', 'no-referrer')
-        self.send_header('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'none'; connect-src 'self'; form-action 'none'")
+        self.send_header('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; form-action 'none'")
         self.end_headers()
         self.wfile.write(body)
 
@@ -143,6 +146,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.ask_login()
         if path in ('/', '/index.html', '/mini', '/nano'):
             return self.send_body(200, INDEX, 'text/html; charset=utf-8')
+        if path == '/assets/capivara.svg':
+            return self.send_body(200, CAPIVARA, 'image/svg+xml; charset=utf-8')
         if path == '/api/status':
             return self.send_body(200, {
                 'ok': True, 'modos': ['nano', 'mini'],
@@ -153,7 +158,7 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if not self.authorized():
             return self.ask_login()
-        if self.path != '/api/chat':
+        if self.path not in ('/api/chat', '/api/documento', '/api/site'):
             return self.send_body(404, {'erro': 'Rota inexistente.'})
         origin = self.headers.get('Origin', '')
         if origin:
@@ -162,11 +167,38 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_body(403, {'erro': 'Origem recusada.'})
         try:
             length = int(self.headers.get('Content-Length', '0'))
-            if not 1 <= length <= 24000:
+            limite = 2_100_000 if self.path == '/api/documento' else 32_000
+            if not 1 <= length <= limite:
                 return self.send_body(413, {'erro': 'Requisição muito grande ou vazia.'})
             data = json.loads(self.rfile.read(length))
             if not isinstance(data, dict):
                 raise ValueError('O corpo deve ser um objeto JSON.')
+            if self.path in ('/api/documento', '/api/site'):
+                with RATE_LOCK:
+                    agora = time.monotonic()
+                    TOOL_TIMES[:] = [t for t in TOOL_TIMES if agora - t < 3600]
+                    if len(TOOL_TIMES) >= 20:
+                        return self.send_body(429, {'erro': 'Limite de análises por hora atingido.'})
+                    if not INFLIGHT.acquire(blocking=False):
+                        return self.send_body(503, {'erro': 'Servidor ocupado. Tente novamente.'})
+                    TOOL_TIMES.append(agora)
+                try:
+                    if self.path == '/api/documento':
+                        arquivo = data.get('base64', '')
+                        if not isinstance(arquivo, str) or len(arquivo) > 2_050_000:
+                            raise ContextError('Documento grande demais.')
+                        conteudo = base64.b64decode(arquivo, validate=True)
+                        resultado = documento(data.get('nome', ''), conteudo)
+                    else:
+                        resultado = site(data.get('url', ''))
+                    return self.send_body(200, resultado)
+                except (ContextError, ValueError, binascii.Error) as exc:
+                    mensagem = str(exc) if isinstance(exc, ContextError) else 'Arquivo inválido.'
+                    return self.send_body(422, {'erro': mensagem})
+                except Exception:
+                    return self.send_body(502, {'erro': 'Não foi possível analisar o conteúdo agora.'})
+                finally:
+                    INFLIGHT.release()
             pergunta = data.get('pergunta')
             if not isinstance(pergunta, str) or not pergunta.strip() or len(pergunta) > 1600:
                 return self.send_body(400, {'erro': 'Pergunta vazia ou com mais de 1600 caracteres.'})
@@ -177,6 +209,10 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(historico, list):
                 return self.send_body(400, {'erro': 'Histórico inválido.'})
             usar_wiki = data.get('wikipedia', True) is True
+            try:
+                contexto = validar_contexto(data.get('contexto'))
+            except ContextError as exc:
+                return self.send_body(400, {'erro': str(exc)})
         except (ValueError, UnicodeError, TypeError, OverflowError):
             return self.send_body(400, {'erro': 'JSON inválido.'})
 
@@ -192,7 +228,7 @@ class Handler(BaseHTTPRequestHandler):
         try:
             cfg = ler_config()
             if modo == 'mini':
-                result = mini_conversa(pergunta, historico, cfg)
+                result = mini_conversa(pergunta, historico, cfg, contexto=contexto) if contexto else mini_conversa(pergunta, historico, cfg)
             else:
                 # Respostas curtas por padrão; a pesquisa é opcional.
                 cfg = cfg.copy()
@@ -202,7 +238,8 @@ class Handler(BaseHTTPRequestHandler):
                     limite_nano = 220
                 cfg['max_tokens'] = max(60, min(400, limite_nano))
                 cfg['temperatura'] = 0.25
-                result = conversa(pergunta, cfg, historico, buscar=usar_wiki)
+                result = (conversa(pergunta, cfg, historico, buscar=usar_wiki, contexto=contexto)
+                          if contexto else conversa(pergunta, cfg, historico, buscar=usar_wiki))
                 result['modo'] = 'nano'
             return self.send_body(200, result)
         except THIGASError:
