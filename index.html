@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0a1323">
+<meta name="theme-color" content="#f7f5f1">
 <meta name="description" content="THIGAS AI: escolha entre respostas rápidas com o Nano ou explicações elaboradas com o Mini.">
 <title>THIGAS AI | Nano e Mini</title>
 <style>
@@ -17,12 +17,59 @@ header{padding:12px 15px 11px;border-bottom:1px solid var(--line);background:#0f
 .welcome{width:min(710px,100%);margin:auto;align-self:center;padding:12px 3px 30px}.welcome .eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:#89dbd8;text-transform:uppercase}.welcome h2{font-size:clamp(23px,5vw,31px);line-height:1.25;margin:10px 0}.welcome p{color:#bacce0;font-size:14px;margin:0 0 19px}.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.choice{display:flex;flex-direction:column;gap:8px;text-align:left;background:#1a2c45;border:1px solid #456080;color:white;border-radius:17px;padding:17px;min-height:156px}.choice:hover,.choice:focus-visible{border-color:#88cbff;background:#224264}.choice .symbol{font-size:25px}.choice strong{font-size:17px}.choice span:last-child{font-size:12px;color:#b9cee5;line-height:1.5}.welcome .fine{font-size:12px;margin-top:17px;color:#8ea8c4}
 footer{padding:10px 12px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#101b2c}.controls{display:flex;align-items:center;gap:9px;margin:0 3px 9px;color:var(--muted);font-size:12px}.controls label{display:inline-flex;gap:7px;align-items:center}#wiki{accent-color:#8ccaff}.hint{margin-left:auto;text-align:right}.composer{display:flex;gap:8px;align-items:flex-end}.composer textarea{min-height:48px;max-height:130px;resize:vertical;flex:1;min-width:0;border-radius:13px;background:#0b1625;border:1px solid #39516b;color:var(--text);padding:11px 12px}.composer textarea:disabled{opacity:.55}.composer button{background:#88c9ff;color:#071a2c;border:0;border-radius:12px;font-weight:800;min-height:48px;padding:11px 17px}.composer button:disabled{opacity:.48}.note{color:#a5bad4;font-size:11px;margin:8px 4px 0}
 @media(max-width:540px){.choice-grid{grid-template-columns:1fr}.choice{min-height:auto;padding:14px;gap:4px}.welcome{margin:8px auto}.welcome h2{font-size:24px}.tabs button{padding:9px}}@media(min-width:750px){.app{border-inline:1px solid var(--line)}header{padding-inline:25px}#chat{padding-inline:28px}}
+
+/* Identidade THIGAS AI — cores inspiradas na capivara e na vegetação. */
+:root{color-scheme:light;--bg:#f7f5f1;--panel:#fffefa;--card:#fff;--line:#d8d1c8;--text:#2b241f;--muted:#5c524a;--accent:#4c523a;--ok:#27613b;--user:#4c523a}
+body{background:var(--bg)}
+.app{background:var(--panel);box-shadow:0 5px 30px #2b241f0d}
+header{background:#fff;border-color:var(--line)}
+.brand{gap:12px}.logo{width:56px;height:56px;object-fit:contain;background:#fff;border-radius:14px;border:1px solid #e3ddd4;padding:2px}
+.brand h1{color:#4c523a;font-size:21px;letter-spacing:-.025em}.brand p{color:var(--muted)}
+.tabs button{background:#f5f2ea;color:var(--text);border-color:var(--line)}
+.tabs button small{color:#63594f}
+.tabs button.selected{background:#4c523a;color:white;border-color:#4c523a}
+.tabs button.selected small{color:#f1f0e9}
+.tabs button:focus-visible,.choice:focus-visible{outline:3px solid #a86f48;outline-offset:2px}
+.statusbar{background:#f4f0e9;color:var(--muted)}
+.statusbar button{background:white;color:var(--text);border-color:var(--line)}
+.online{color:#22603e}
+#chat{background:var(--bg);scrollbar-color:#b7b39e transparent;min-height:0}
+.bubble{background:white;border-color:#e0d9d0;box-shadow:0 2px 9px #2b241f0a;color:var(--text)}
+.bubble.user{background:#4c523a;border-color:#42492e;color:#fff}
+.sender{color:#865336}
+.bubble.user .sender{color:#e7ebd8}
+.sources a{color:#4c523a;text-decoration:underline}
+.notice{color:#754e30}
+.welcome .eyebrow{color:#686e48}
+.welcome p{color:#615c53}
+.choice{background:#fffdf9;border:1px solid #d8d1c8;color:#2b241f;min-height:156px}
+.choice:hover,.choice:focus-visible{border-color:#79805c;background:#f2f0e7}
+.choice span:last-child{color:#655b53}
+.welcome .fine{color:#645a52}
+footer{background:#fffefa;border-color:var(--line)}
+.controls{color:var(--muted)}#wiki{accent-color:#4c523a}
+.composer textarea{background:white;color:var(--text);border:1px solid #c9c4b9}
+.composer button{background:#4c523a;color:white}
+.composer button:hover:not(:disabled){background:#393f2d}
+.note{color:#685f53}
+.tools-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:3px 3px 9px}
+.tools-row .attach-btn,.tools-row button,.site-form button{display:inline-flex;align-items:center;justify-content:center;border:1px solid #b8b6a3;background:#f2f0e8;color:#343d2e;border-radius:10px;padding:7px 11px;font:600 12px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer}
+.tools-row .attach-btn:hover,.tools-row button:hover,.site-form button:hover{background:#e4e8d8}
+.tools-row button:disabled,.tools-row label.disabled{opacity:.55;cursor:wait}
+#context-label{font-size:12px;color:#4c523a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;flex-basis:100%}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.site-panel{border:1px solid var(--line);border-radius:12px;padding:10px;background:#f6f3ec;margin-bottom:9px}
+.site-panel label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
+.site-form{display:flex;gap:7px;align-items:center}
+.site-form input{min-width:0;flex:1;border:1px solid #bfb8ae;border-radius:9px;background:white;color:var(--text);padding:8px}
+.site-form button{background:#4c523a;color:white;border-color:#4c523a}
+@media(max-width:430px){.brand .logo{width:46px;height:46px}.brand h1{font-size:19px}.brand p{font-size:11px}.site-form{flex-wrap:wrap}.site-form button{flex:1}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
- <div class="brand"><span class="logo" aria-hidden="true">T</span><div><h1>THIGAS AI</h1><p>Escolha como prefere receber suas respostas</p></div></div>
+ <div class="brand"><img class="logo" src="/assets/capivara.svg" alt="Símbolo da capivara THIGAS AI"><div><h1>THIGAS AI</h1><p>Escolha como prefere receber suas respostas</p></div></div>
  <nav class="tabs" aria-label="Estilo das respostas">
   <button id="tab-nano" type="button" aria-pressed="false"><strong>THIGAS nano</strong><small>Respostas rápidas e objetivas</small></button>
   <button id="tab-mini" type="button" aria-pressed="false"><strong>THIGAS mini</strong><small>Respostas elaboradas e explicadas</small></button>
@@ -32,6 +79,17 @@ footer{padding:10px 12px max(12px,env(safe-area-inset-bottom));border-top:1px so
 <main id="chat" role="log" aria-live="polite" aria-label="Conversa"></main>
 <footer>
  <div class="controls"><label id="wiki-control" hidden><input id="wiki" type="checkbox"> Consultar Wikipédia</label><span id="engine" class="hint">Escolha Nano ou Mini</span></div>
+ <div class="tools-row">
+  <label class="attach-btn" for="documento" id="documento-label">Anexar documento</label>
+  <input class="sr-only" type="file" id="documento" accept=".pdf,.docx,.txt,.md,.csv" aria-label="Selecionar documento">
+  <button type="button" id="open-site">Analisar site</button>
+  <button type="button" id="clear-context" hidden>Remover anexo</button>
+  <span id="context-label" role="status" aria-live="polite"></span>
+ </div>
+ <div class="site-panel" id="site-panel" hidden>
+  <label for="site-url">Endereço HTTPS público para análise</label>
+  <div class="site-form"><input id="site-url" type="url" inputmode="url" maxlength="1100" placeholder="https://exemplo.org/artigo" autocomplete="url"><button type="button" id="read-site">Consultar página</button></div>
+ </div>
  <form id="form" class="composer"><textarea id="question" maxlength="1600" rows="2" placeholder="Escolha Nano ou Mini para começar..." aria-label="Sua pergunta" disabled></textarea><button type="submit" id="send" disabled>Enviar</button></form>
  <p class="note" id="explain">O THIGAS AI tem dois estilos de resposta. Você pode alternar a qualquer momento.</p>
 </footer>
@@ -39,7 +97,7 @@ footer{padding:10px 12px max(12px,env(safe-area-inset-bottom));border-top:1px so
 <script>
 'use strict';
 const el=id=>document.getElementById(id),chat=el('chat'),input=el('question'),send=el('send');
-const hist={nano:[],mini:[]},transcript={nano:[],mini:[]};
+const hist={nano:[],mini:[]},transcript={nano:[],mini:[]},contexts={nano:null,mini:null};
 const key='thigas_ai_modo';let saved=null;
 try{const s=localStorage.getItem(key);if(s==='nano'||s==='mini')saved=s}catch(_){/* Armazenamento indisponível: pedir escolha. */}
 let mode=location.pathname==='/nano'?'nano':location.pathname==='/mini'?'mini':saved;
@@ -58,11 +116,56 @@ function showChoice(){
  section.innerHTML='<span class="eyebrow">Bem-vindo ao THIGAS AI</span><h2>Você prefere respostas rápidas ou mais elaboradas?</h2><p>Escolha o estilo ideal para esta conversa. Você pode trocar de modo quando quiser.</p><div class="choice-grid"><button type="button" class="choice" id="choice-nano"><span class="symbol" aria-hidden="true">⚡</span><strong>THIGAS nano</strong><span>Respostas curtas, diretas e práticas. Permite consultar a Wikipédia quando você desejar.</span></button><button type="button" class="choice" id="choice-mini"><span class="symbol" aria-hidden="true">✦</span><strong>THIGAS mini</strong><span>Respostas detalhadas, com contexto, exemplos e explicações passo a passo.</span></button></div><p class="fine">Os dois modos utilizam o serviço configurado pelo administrador. A escolha modifica o estilo e a extensão da resposta.</p>';
  chat.append(section);section.querySelector('#choice-nano').onclick=()=>choose('nano');section.querySelector('#choice-mini').onclick=()=>choose('mini');
 }
+function refreshContext(){
+ const info=el('context-label'),ctx=contexts[mode]||null;
+ info.textContent=ctx?(ctx.tipo==='site'?'Site: ':'Documento: ')+ctx.titulo:'';
+ el('clear-context').hidden=!ctx;
+ el('documento').disabled=busy||mode===null;
+ el('open-site').disabled=busy||mode===null;
+ el('documento-label').classList.toggle('disabled',busy||mode===null);
+}
+async function requestContext(url,data){
+ const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+ const body=await response.json();
+ if(!response.ok)throw Error(body.erro||'Não foi possível analisar o material.');
+ return body;
+}
+el('documento').addEventListener('change',async function(){
+ const file=this.files&&this.files[0];if(!file||!mode||busy)return;
+ const current=mode;this.value='';
+ if(file.size>1500000){el('context-label').textContent='Arquivo muito grande (limite: 1,5 MB).';return}
+ busy=true;send.disabled=true;refreshContext();
+ el('context-label').textContent='Extraindo texto do documento...';
+ try{
+  const base64=await new Promise((ok,bad)=>{const r=new FileReader();r.onerror=()=>bad(Error('Não foi possível ler o arquivo.'));r.onload=()=>ok(String(r.result).split(',')[1]||'');r.readAsDataURL(file)});
+  const data=await requestContext('/api/documento',{nome:file.name,base64:base64});
+  contexts[current]=data;refreshContext();
+  el('context-label').textContent='Documento anexado: '+data.titulo+'. '+(data.aviso||'Pronto para perguntas.');
+  if(!input.value.trim())input.value='Resuma o documento anexado e destaque os pontos principais.';
+ }catch(err){el('context-label').textContent='Falha no documento: '+String(err.message||err)}
+ finally{busy=false;refreshContext();send.disabled=mode===null;input.focus()}
+});
+el('open-site').addEventListener('click',()=>{el('site-panel').hidden=!el('site-panel').hidden;if(!el('site-panel').hidden)el('site-url').focus()});
+el('read-site').addEventListener('click',async()=>{
+ const url=el('site-url').value.trim(),current=mode;
+ if(!current||busy)return;
+ if(!url.startsWith('https://')){el('context-label').textContent='Use uma URL iniciada por https://';return}
+ busy=true;send.disabled=true;refreshContext();el('context-label').textContent='Lendo o texto público do site...';
+ try{
+  const data=await requestContext('/api/site',{url:url});
+  contexts[current]=data;el('site-panel').hidden=true;refreshContext();
+  el('context-label').textContent='Site anexado: '+data.titulo+'. '+(data.aviso||'Pronto para análise.');
+  if(!input.value.trim())input.value='Analise essa página e resuma os pontos principais.';
+ }catch(err){el('context-label').textContent='Falha na análise: '+String(err.message||err)}
+ finally{busy=false;refreshContext();send.disabled=mode===null;input.focus()}
+});
+el('clear-context').addEventListener('click',()=>{if(busy||!mode)return;contexts[mode]=null;refreshContext()});
 function draw(){
  const nano=mode==='nano',mini=mode==='mini';
  el('tab-nano').classList.toggle('selected',nano);el('tab-mini').classList.toggle('selected',mini);
  el('tab-nano').setAttribute('aria-pressed',String(nano));el('tab-mini').setAttribute('aria-pressed',String(mini));
  el('wiki-control').hidden=!nano;
+ refreshContext();
  el('engine').textContent=mode===null?'Escolha Nano ou Mini':nano?'Nano · resposta objetiva':'Mini · resposta detalhada';
  el('explain').textContent=mode===null?'Selecione um estilo de resposta para começar.':nano?'Respostas diretas. A pesquisa na Wikipédia é opcional e pode levar um pouco mais de tempo.':'Explicações mais completas, com exemplos quando úteis.';
  input.disabled=mode===null;send.disabled=mode===null||busy;
@@ -75,7 +178,7 @@ function draw(){
 }
 function choose(next){if(busy||!['nano','mini'].includes(next))return;mode=next;try{localStorage.setItem(key,next)}catch(_){}history.replaceState(null,'',next==='nano'?'/nano':'/mini');draw()}
 el('tab-nano').onclick=()=>choose('nano');el('tab-mini').onclick=()=>choose('mini');
-el('clear').onclick=()=>{if(!mode||busy)return;hist[mode]=[];transcript[mode]=[];draw()};
+el('clear').onclick=()=>{if(!mode||busy)return;hist[mode]=[];transcript[mode]=[];contexts[mode]=null;draw()};
 fetch('/api/status').then(async r=>{if(!r.ok)throw Error(String(r.status));return r.json()}).then(data=>{online=!!data.ok;el('status').textContent=online?'● THIGAS AI online':'Serviço em configuração';el('status').classList.toggle('online',online)}).catch(()=>{el('status').textContent='Servidor inicializando ou indisponível'});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!input.disabled)el('form').requestSubmit()}});
 el('form').addEventListener('submit',async e=>{
@@ -84,7 +187,7 @@ el('form').addEventListener('submit',async e=>{
  transcript[current].push({role:'user',content:q});add({role:'user',content:q});input.value='';busy=true;send.disabled=true;
  const progress=add({role:'assistant',content:wiki?'Consultando a Wikipédia e preparando a resposta...':current==='nano'?'Preparando uma resposta rápida...':'Elaborando sua resposta...'});progress.classList.add('pending');
  try{
-  const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modo:current,pergunta:q,historico:prior,wikipedia:wiki})});
+  const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modo:current,pergunta:q,historico:prior,wikipedia:wiki,contexto:contexts[current]})});
   const data=await response.json();if(!response.ok)throw Error(data.erro||'Falha HTTP '+response.status);
   progress.remove();const item={role:'assistant',content:data.resposta||'Não recebi uma resposta.',sources:data.fontes||[],notice:data.aviso||''};
   transcript[current].push(item);add(item);
