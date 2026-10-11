@@ -80,13 +80,15 @@ class ContextHTTPTests(unittest.TestCase):
             headers.update(self.auth())
         return request.urlopen(request.Request(self.url(path), data=json.dumps(payload).encode(), headers=headers, method="POST"))
 
-    def test_logo_served_protected(self):
-        with self.assertRaises(error.HTTPError) as e:
-            request.urlopen(self.url("/assets/capivara.svg"))
-        self.assertEqual(e.exception.code, 401)
-        with request.urlopen(request.Request(self.url("/assets/capivara.svg"), headers=self.auth())) as r:
+    def test_logo_is_public_but_chat_stays_protected(self):
+        # Arquivo estático público permite ícone e instalação do PWA.
+        with request.urlopen(self.url("/assets/capivara.svg")) as r:
             self.assertIn(b"<svg", r.read())
             self.assertIn("image/svg+xml", r.headers["Content-Type"])
+        # A interface de conversa continua exigindo autenticação.
+        with self.assertRaises(error.HTTPError) as e:
+            request.urlopen(self.url("/"))
+        self.assertEqual(e.exception.code, 401)
 
     def test_upload_document(self):
         b64 = base64.b64encode("Texto sobre a história da educação paulista.".encode()).decode()
