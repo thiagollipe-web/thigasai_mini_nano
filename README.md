@@ -1,5 +1,3 @@
-# THIGAS AI — Mini e Nano
+# THIGAS AI Mini + Nano
 
-Portal web com modos de respostas rápidas (Nano) e elaboradas (Mini), pesquisa na Wikipédia e implantação no Render.
-
-Os arquivos completos serão adicionados neste repositório. Chaves e senhas devem ser configuradas exclusivamente no serviço de hospedagem.
+Publicação dos arquivos do portal THIGAS AI v0.6 em andamento. Não armazene chaves ou senhas no repositório.
