@@ -3,7 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f5f1">
+<meta name="theme-color" content="#4c523a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="THIGAS AI">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="/assets/capivara.svg">
+<link rel="apple-touch-icon" href="/assets/icon-180.png">
 <meta name="description" content="THIGAS AI: escolha entre respostas rápidas com o Nano ou explicações elaboradas com o Mini.">
 <title>THIGAS AI | Nano e Mini</title>
 <style>
@@ -64,12 +71,21 @@ footer{background:#fffefa;border-color:var(--line)}
 .site-form input{min-width:0;flex:1;border:1px solid #bfb8ae;border-radius:9px;background:white;color:var(--text);padding:8px}
 .site-form button{background:#4c523a;color:white;border-color:#4c523a}
 @media(max-width:430px){.brand .logo{width:46px;height:46px}.brand h1{font-size:19px}.brand p{font-size:11px}.site-form{flex-wrap:wrap}.site-form button{flex:1}}
+
+.brand-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.install-button{flex-shrink:0;border:1px solid #4c523a;background:#4c523a;color:#fff;border-radius:10px;font-weight:700;font-size:12px;line-height:1.35;padding:9px 11px;cursor:pointer}
+.install-button:focus-visible{outline:3px solid #a86f48;outline-offset:2px}
+.install-button:hover{background:#3e4531}
+@media(max-width:390px){.install-button{font-size:11px;padding:8px}.brand h1{font-size:18px}}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
- <div class="brand"><img class="logo" src="/assets/capivara.svg" alt="Símbolo da capivara THIGAS AI"><div><h1>THIGAS AI</h1><p>Escolha como prefere receber suas respostas</p></div></div>
+ <div class="brand-row">
+  <div class="brand"><img class="logo" src="/assets/capivara.svg" alt="Símbolo da capivara THIGAS AI"><div><h1>THIGAS AI</h1><p>Escolha como prefere receber suas respostas</p></div></div>
+  <button type="button" id="install-pwa" class="install-button" hidden>Instalar app</button>
+ </div>
  <nav class="tabs" aria-label="Estilo das respostas">
   <button id="tab-nano" type="button" aria-pressed="false"><strong>THIGAS nano</strong><small>Respostas rápidas e objetivas</small></button>
   <button id="tab-mini" type="button" aria-pressed="false"><strong>THIGAS mini</strong><small>Respostas elaboradas e explicadas</small></button>
@@ -197,6 +213,27 @@ el('form').addEventListener('submit',async e=>{
  finally{busy=false;send.disabled=false;input.focus()}
 });
 window.addEventListener('popstate',()=>{if(busy)return;const path=location.pathname;mode=path==='/nano'?'nano':path==='/mini'?'mini':saved;draw()});
+
+// PWA: instalação nativa no Android sem expor credenciais nem cachear conversas.
+let pendingInstall=null;
+window.addEventListener('beforeinstallprompt',event=>{
+ event.preventDefault();
+ pendingInstall=event;
+ el('install-pwa').hidden=false;
+});
+el('install-pwa').addEventListener('click',async()=>{
+ if(!pendingInstall)return;
+ const trigger=pendingInstall;
+ pendingInstall=null;
+ el('install-pwa').hidden=true;
+ try{await trigger.prompt()}catch(_){}
+});
+window.addEventListener('appinstalled',()=>{pendingInstall=null;el('install-pwa').hidden=true});
+if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){
+ window.addEventListener('load',()=>{
+  navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{});
+ });
+}
 draw();
 </script>
 </body>

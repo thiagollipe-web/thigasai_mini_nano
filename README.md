@@ -30,6 +30,26 @@ sigilosos nem dados de alunos sem autorização e base legal adequada. As consul
 partir da referência visual da capivara. Para reproduzir o desenho PNG original
 exatamente, será necessário adicioná-lo ao repositório e ajustar o caminho no HTML.
 
+## Instalar como aplicativo PWA (Android e iPhone)
+
+O THIGAS AI funciona como um **Progressive Web App**. Abra
+https://thigas-mini-nano.onrender.com em um navegador e faça login.
+
+- Android (Chrome/Brave): toque em **Instalar app** quando aparecer ou use
+  o menu do navegador **Instalar app / Adicionar à tela inicial**.
+- iPhone (Safari): use **Compartilhar > Adicionar à Tela de Início**.
+- Depois da instalação, um ícone com a capivara abrirá o THIGAS AI em janela
+  independente, sem a barra de endereço do navegador.
+
+O PWA precisa de **internet para conversar**. Em falhas de conexão, exibe
+uma página offline que convida a reconectar. Por segurança, não cacheia
+a interface HTML autenticada, respostas, documentos, anexos, tokens ou
+chaves. O login HTTP Basic pode ser solicitado ao abrir a versão instalada.
+
+Ícones PNG de 180, 192 e 512 px e variante maskable são gerados
+automaticamente de `assets/capivara.svg` por
+`.github/workflows/pwa-icons.yml`. Não expor credenciais no manifesto.
+
 ## Informação técnica para o administrador
 
 O nome do provedor de IA e o identificador do modelo **não aparecem na interface**, na API pública de status nem nas mensagens de erro apresentadas pelo site. A chave de acesso nunca é enviada ao navegador. Ainda assim, a arquitetura deve ser descrita com transparência se houver uma pergunta técnica direta.

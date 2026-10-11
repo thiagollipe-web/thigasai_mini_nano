@@ -1,0 +1,67 @@
+{
+  "name": "THIGAS AI — Nano e Mini",
+  "short_name": "THIGAS AI",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "lang": "pt-BR",
+  "description": "Assistente THIGAS AI: respostas rápidas com Nano, respostas elaboradas com Mini, documentos e Wikipédia.",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#f7f5f1",
+  "theme_color": "#4c523a",
+  "categories": [
+    "education",
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "THIGAS nano",
+      "short_name": "Nano",
+      "description": "Respostas rápidas e Wikipédia",
+      "url": "/nano",
+      "icons": [
+        {
+          "src": "/assets/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "THIGAS mini",
+      "short_name": "Mini",
+      "description": "Explicações detalhadas",
+      "url": "/mini",
+      "icons": [
+        {
+          "src": "/assets/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

@@ -24,6 +24,18 @@ from site_tools import ContextError, documento, site, validar_contexto
 BASE = Path(__file__).resolve().parent
 INDEX = (BASE / 'index.html').read_bytes()
 CAPIVARA = (BASE / 'assets' / 'capivara.svg').read_bytes()
+# Somente recursos estáticos públicos podem ser guardados offline.
+# Arquivos de configuração, HTML autenticado e respostas da API nunca são cacheados.
+PWA_PUBLIC = {
+    '/manifest.webmanifest': ('manifest.webmanifest', 'application/manifest+json; charset=utf-8'),
+    '/sw.js': ('sw.js', 'text/javascript; charset=utf-8'),
+    '/offline.html': ('offline.html', 'text/html; charset=utf-8'),
+    '/assets/capivara.svg': ('assets/capivara.svg', 'image/svg+xml'),
+    '/assets/icon-180.png': ('assets/icon-180.png', 'image/png'),
+    '/assets/icon-192.png': ('assets/icon-192.png', 'image/png'),
+    '/assets/icon-512.png': ('assets/icon-512.png', 'image/png'),
+    '/assets/icon-maskable-512.png': ('assets/icon-maskable-512.png', 'image/png'),
+}
 USER = os.environ.get('THIGAS_SITE_USER', 'thigas')
 PASSWORD = os.environ.get('THIGAS_SITE_PASSWORD', '')
 RATE_LOCK = threading.Lock()
@@ -113,7 +125,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('X-Frame-Options', 'DENY')
         self.send_header('Referrer-Policy', 'no-referrer')
-        self.send_header('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; form-action 'none'")
+        self.send_header('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; form-action 'none'")
         self.end_headers()
         self.wfile.write(body)
 
@@ -142,6 +154,13 @@ class Handler(BaseHTTPRequestHandler):
         path = self.path.split('?', 1)[0]
         if path == '/health':
             return self.send_body(200, {'ok': True})
+        if path in PWA_PUBLIC:
+            relative, mime = PWA_PUBLIC[path]
+            try:
+                resource = (BASE / relative).read_bytes()
+            except OSError:
+                return self.send_body(404, {'erro': 'Recurso não encontrado.'})
+            return self.send_body(200, resource, mime)
         if not self.authorized():
             return self.ask_login()
         if path in ('/', '/index.html', '/mini', '/nano'):

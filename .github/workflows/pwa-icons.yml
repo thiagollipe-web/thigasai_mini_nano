@@ -1,0 +1,52 @@
+name: Gerar ícones PWA
+on:
+  push:
+    branches: [main]
+    paths:
+      - assets/capivara.svg
+      - .github/workflows/pwa-icons.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Dependências para rasterização SVG
+        run: python -m pip install cairosvg pillow
+      - name: Renderizar ícones PNG com fundo seguro
+        run: |
+          python - <<'PY'
+          import io
+          from pathlib import Path
+          from cairosvg import svg2png
+          from PIL import Image
+
+          base=Path('assets')
+          svg=(base/'capivara.svg').read_bytes()
+          def gerar(nome, tamanho, proporcao):
+              fundo=Image.new('RGB',(tamanho,tamanho),'#f7f5f1')
+              lado=int(tamanho*proporcao)
+              imagem=Image.open(io.BytesIO(svg2png(bytestring=svg,output_width=lado,output_height=lado))).convert('RGBA')
+              pos=((tamanho-lado)//2,(tamanho-lado)//2)
+              fundo.paste(imagem,pos,imagem)
+              fundo.save(base/nome,format='PNG',optimize=True)
+              print(nome,(base/nome).stat().st_size,'bytes')
+          gerar('icon-180.png',180,.85)
+          gerar('icon-192.png',192,.85)
+          gerar('icon-512.png',512,.85)
+          gerar('icon-maskable-512.png',512,.68)
+          PY
+      - name: Publicar ícones no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/icon-180.png assets/icon-192.png assets/icon-512.png assets/icon-maskable-512.png
+          if ! git diff --cached --quiet; then
+            git commit -m "Adicionar ícones PNG PWA para Android e iOS"
+            git push
+          fi
