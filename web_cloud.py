@@ -18,7 +18,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from thigas_wiki import THIGASError, ler_config, conversa, api_chat, validar_url
+from thigas_wiki import THIGASError, ler_config, conversa, api_chat, validar_url, wikipedia, contexto_de_fontes
 from site_tools import ContextError, documento, site, validar_contexto
 
 BASE = Path(__file__).resolve().parent
@@ -42,6 +42,45 @@ RATE_LOCK = threading.Lock()
 INFLIGHT = threading.BoundedSemaphore(2)
 CALL_TIMES: list[float] = []
 TOOL_TIMES: list[float] = []
+
+ALLOWED_EFFORTS = {'rapido', 'equilibrado', 'alto'}
+MAX_IMAGE_BYTES = 950_000
+
+def validar_imagem(imagem):
+    """Aceita somente JPEG/PNG pequeno. Nada é salvo em disco ou log."""
+    if imagem is None:
+        return None
+    if not isinstance(imagem, dict):
+        raise ValueError('Imagem inválida.')
+    url = imagem.get('dados', '')
+    nome = imagem.get('nome', 'imagem')
+    if not isinstance(nome, str) or len(nome) > 120 or not isinstance(url, str):
+        raise ValueError('Imagem inválida.')
+    tipos = {'data:image/jpeg;base64,': 'jpeg', 'data:image/png;base64,': 'png'}
+    prefixo = next((p for p in tipos if url.startswith(p)), None)
+    if not prefixo or len(url) > 1_360_000:
+        raise ValueError('Use imagem PNG ou JPEG de até 950 KB.')
+    try:
+        raw = base64.b64decode(url[len(prefixo):], validate=True)
+    except (ValueError, binascii.Error) as exc:
+        raise ValueError('Imagem codificada incorretamente.') from exc
+    if not raw or len(raw) > MAX_IMAGE_BYTES:
+        raise ValueError('A imagem deve ter no máximo 950 KB.')
+    if prefixo.startswith('data:image/jpeg') and not raw.startswith(b'\xff\xd8\xff'):
+        raise ValueError('O arquivo não é um JPEG válido.')
+    if prefixo.startswith('data:image/png') and raw[:8] != b'\x89PNG\r\n\x1a\n':
+        raise ValueError('O arquivo não é um PNG válido.')
+    return {'data_url': url, 'nome': nome}
+
+def mensagem_com_imagem(pergunta, imagem):
+    """Estrutura oficial image_url da Maritaca: imagem é processada como OCR."""
+    if not imagem:
+        return pergunta
+    return [
+        {'type': 'text', 'text': pergunta + '\nSe a imagem tiver texto legível, use o OCR. '
+         'Não afirme enxergar objetos, expressões ou detalhes visuais que o OCR não fornece.'},
+        {'type': 'image_url', 'image_url': {'url': imagem['data_url']}},
+    ]
 
 MINI_SYSTEM = (
     'Você é o THIGAS mini, modo de respostas elaboradas do projeto THIGAS AI. '
@@ -92,7 +131,8 @@ def remote_mini_config() -> dict | None:
     }
 
 
-def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict, contexto: str = '') -> dict:
+def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict, contexto: str = '',
+                  buscar_wiki: bool = False, imagem=None, esforco: str = 'equilibrado') -> dict:
     base = remote_mini_config()
     # Sem endpoint remoto: perfil Mini usa Sabiázinho, NÃO o GGUF original.
     cfg = (base if base else cloud_cfg).copy()
@@ -102,16 +142,31 @@ def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict, contexto: str
         limite_mini = int(os.getenv('THIGAS_MINI_MAX_TOKENS', '800'))
     except ValueError:
         limite_mini = 800
-    cfg['max_tokens'] = max(250, min(1200, limite_mini))
+    teto = 520 if esforco != 'alto' else 1100
+    cfg['max_tokens'] = max(250, min(1200, limite_mini, teto)) if esforco != 'alto' else max(900, min(1200, limite_mini + 300))
     cfg['temperatura'] = 0.4
     historico = historico if isinstance(historico, list) else []
-    messages = [{'role': 'system', 'content': MINI_SYSTEM}]
+    instrucao = MINI_SYSTEM
+    if esforco == 'alto':
+        instrucao += ' Esforço de elaboração alto: estrutura a resposta de forma completa, compare alternativas e inclua ressalvas quando úteis.'
+    else:
+        instrucao += ' Esforço equilibrado: seja claro e completo sem alongar desnecessariamente.'
+    fontes = []
+    aviso = ''
+    if buscar_wiki and pergunta.casefold() not in {'oi', 'olá', 'ola'}:
+        try:
+            fontes = wikipedia(pergunta, contato=str(cloud_cfg.get('contato_wikipedia') or ''))
+            if fontes:
+                instrucao += '\n\nMaterial da Wikipédia para citar quando pertinente:\n' + contexto_de_fontes(fontes)
+        except THIGASError:
+            aviso = 'A Wikipédia não respondeu nesta consulta.'
+    messages = [{'role': 'system', 'content': instrucao}]
     for h in historico[-8:]:
         if isinstance(h, dict) and h.get('role') in ('user', 'assistant'):
             messages.append({'role': h['role'], 'content': str(h.get('content', ''))[:2200]})
-    messages.append({'role': 'user', 'content': pergunta[:1600] + contexto})
+    messages.append({'role': 'user', 'content': mensagem_com_imagem(pergunta[:1600] + contexto, imagem)})
     resposta = api_chat(cfg, messages)
-    return {'resposta': resposta, 'fontes': [], 'aviso': '', 'modo': 'mini'}
+    return {'resposta': resposta, 'fontes': fontes, 'aviso': aviso, 'modo': 'mini'}
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -186,7 +241,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_body(403, {'erro': 'Origem recusada.'})
         try:
             length = int(self.headers.get('Content-Length', '0'))
-            limite = 2_100_000 if self.path == '/api/documento' else 32_000
+            limite = 2_100_000 if self.path == '/api/documento' else (1_400_000 if self.path == '/api/chat' else 32_000)
             if not 1 <= length <= limite:
                 return self.send_body(413, {'erro': 'Requisição muito grande ou vazia.'})
             data = json.loads(self.rfile.read(length))
@@ -222,6 +277,11 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(pergunta, str) or not pergunta.strip() or len(pergunta) > 1600:
                 return self.send_body(400, {'erro': 'Pergunta vazia ou com mais de 1600 caracteres.'})
             modo = data.get('modo', 'nano')
+            esforco = data.get('esforco')
+            if esforco is not None:
+                if esforco not in ALLOWED_EFFORTS:
+                    return self.send_body(400, {'erro': 'Esforço inválido.'})
+                modo = 'nano' if esforco == 'rapido' else 'mini'
             if modo not in ('mini', 'nano'):
                 return self.send_body(400, {'erro': 'Modo desconhecido.'})
             historico = data.get('historico', [])
@@ -231,6 +291,10 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 contexto = validar_contexto(data.get('contexto'))
             except ContextError as exc:
+                return self.send_body(400, {'erro': str(exc)})
+            try:
+                imagem = validar_imagem(data.get('imagem'))
+            except ValueError as exc:
                 return self.send_body(400, {'erro': str(exc)})
         except (ValueError, UnicodeError, TypeError, OverflowError):
             return self.send_body(400, {'erro': 'JSON inválido.'})
@@ -247,7 +311,16 @@ class Handler(BaseHTTPRequestHandler):
         try:
             cfg = ler_config()
             if modo == 'mini':
-                result = mini_conversa(pergunta, historico, cfg, contexto=contexto) if contexto else mini_conversa(pergunta, historico, cfg)
+                extras = {}
+                if contexto:
+                    extras['contexto'] = contexto
+                if usar_wiki:
+                    extras['buscar_wiki'] = True
+                if imagem:
+                    extras['imagem'] = imagem
+                if esforco:
+                    extras['esforco'] = esforco
+                result = mini_conversa(pergunta, historico, cfg, **extras)
             else:
                 # Respostas curtas por padrão; a pesquisa é opcional.
                 cfg = cfg.copy()
@@ -257,8 +330,10 @@ class Handler(BaseHTTPRequestHandler):
                     limite_nano = 220
                 cfg['max_tokens'] = max(60, min(400, limite_nano))
                 cfg['temperatura'] = 0.25
-                result = (conversa(pergunta, cfg, historico, buscar=usar_wiki, contexto=contexto)
-                          if contexto else conversa(pergunta, cfg, historico, buscar=usar_wiki))
+                extra_nano = {'contexto': contexto} if contexto else {}
+                if imagem:
+                    extra_nano['imagem'] = imagem
+                result = conversa(pergunta, cfg, historico, buscar=usar_wiki, **extra_nano)
                 result['modo'] = 'nano'
             return self.send_body(200, result)
         except THIGASError:

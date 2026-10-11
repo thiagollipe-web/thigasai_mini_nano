@@ -271,7 +271,7 @@ def api_chat(config: dict[str, Any], mensagens: list[dict[str, str]]) -> str:
 
 
 def conversa(pergunta: str, config: dict[str, Any], historico: list[dict[str, str]] | None = None,
-             buscar: bool = True, contexto: str = '') -> dict[str, Any]:
+             buscar: bool = True, contexto: str = '', imagem=None) -> dict[str, Any]:
     pergunta = pergunta.strip()[:1600]
     if not pergunta:
         raise THIGASError('Digite uma pergunta.')
@@ -297,7 +297,14 @@ def conversa(pergunta: str, config: dict[str, Any], historico: list[dict[str, st
     elif buscar:
         system += ('\n\nNenhuma fonte da Wikipédia foi obtida nesta rodada. '
                    'Não afirme ter consultado fontes verificadas.')
-    mensagens = [{'role': 'system', 'content': system}] + seguros + [{'role': 'user', 'content': pergunta + contexto}]
+    msg = pergunta + contexto
+    if imagem:
+        # O modelo recebe OCR do conteúdo textual da imagem, não visão computacional ampla.
+        msg = [
+            {'type': 'text', 'text': msg + '\nExtraia apenas o texto legível na imagem. Não invente informações visuais.'},
+            {'type': 'image_url', 'image_url': {'url': imagem['data_url']}},
+        ]
+    mensagens = [{'role': 'system', 'content': system}] + seguros + [{'role': 'user', 'content': msg}]
     texto = api_chat(config, mensagens)
     return {'resposta': texto, 'fontes': fontes, 'aviso': aviso}
 
