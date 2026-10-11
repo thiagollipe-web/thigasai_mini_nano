@@ -4,6 +4,7 @@
 
 ## 1. Identificação e escopo
 **Empresa / nome comercial proposto:** **Brittech.inc** (denominação informada pelos responsáveis; constituição, disponibilidade do nome empresarial, marca e CNPJ não verificados).  
+**Fundador da Brittech.inc (identificação declarada):** **Thiago Fillipe Soares**. A identificação como fundador nesta documentação não representa comprovação de constituição ou registro da empresa.  
 **Marca e família de produtos:** **ThigasAI / THIGAS AI**, incluindo THIGAS AI mini, THIGAS AI nano, THIGAS AI e THIGAS Music.  
 **Relação proposta:** Brittech.inc será a empresa responsável pela operação comercial dos produtos ThigasAI, após formalização e definição contratual da titularidade.  
 **Situação da marca:** disponibilidade de ThigasAI e Brittech.inc no INPI ainda não confirmada.  
