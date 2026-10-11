@@ -1,3 +1,33 @@
+## Chat com esforço, microfone, anexos e atalhos (v0.8)
+
+A interface foi redesenhada como uma conversa única. Não há mais abas grandes de
+Nano/Mini nem controle de "nível de pensamento"; existe um seletor de **Esforço**
+no campo de mensagem:
+
+- **Rápido**: mensagens concisas, perfil Nano.
+- **Equilibrado**: explicações em linguagem natural, perfil Mini.
+- **Alto**: solicita mais detalhamento, exemplos e ressalvas, com teto de tokens maior.
+
+**Transparência:** o esforço ajusta o formato e o limite das respostas do
+modelo configurado, não garante raciocínio interno adicional nem troca
+automaticamente o provedor. Respostas longas podem consumir mais créditos.
+
+O botão **+** abre anexos de documento, **imagem PNG/JPEG (OCR de texto)**,
+análise de site HTTPS e busca opcional na Wikipédia. O anexo de imagem é
+redimensionado no navegador para caber no limite de 950 KB e enviado ao servidor
+no momento da pergunta; é encaminhado à API configurada, sem ser salvo no Render.
+A leitura de imagem via API extrai sobretudo caracteres legíveis, e **não faz
+análise visual completa de fotografias**. Imagens enviadas podem gerar custos
+conforme o provedor. O microfone usa a API de reconhecimento de fala do
+navegador, pode pedir permissão, pode não existir em todos os dispositivos e
+apenas preenche a caixa de texto; nunca envia uma mensagem sem confirmação.
+
+Digite \`@\` para buscar **@wikipedia, @arquivo, @imagem, @site** e \`/\` para
+**/resumir, /explicar, /pesquisar, /codigo, /limpar, /ajuda**. Os comandos
+aparecem em um menu de sugestões operável pelo toque ou teclado. O histórico
+da conversa fica somente na aba atual, e a escolha de esforço é salva no
+navegador. Nada de conteúdo privado entra no cache offline do PWA.
+
 # THIGAS AI — Nano rápido + Mini elaborado | Render
 
 Portal web protegido por senha, com dois **estilos de resposta** sob a identidade THIGAS AI:

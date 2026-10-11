@@ -54,13 +54,19 @@ class DualModeTests(unittest.TestCase):
             self.assertEqual(out.exception.code, 401)
 
     def test_index_and_tabs(self):
+        # Interface v0.8: o seletor é de esforço, sem abas de pensamento.
         for path in ['/', '/mini', '/nano']:
             with request.urlopen(request.Request(self.url(path), headers=self.headers())) as res:
                 html=res.read().decode('utf-8')
-                self.assertIn('THIGAS mini', html)
-                self.assertIn('THIGAS nano', html)
-                self.assertIn('Você prefere respostas rápidas ou mais elaboradas?', html)
-                self.assertIn('wikipedia', html)
+                for identifier in ('id="plus"', 'id="mic"', 'id="effort"', 'id="quick-menu"',
+                                   'id="document-file"', 'id="image-file"', 'id="site-url"'):
+                    self.assertIn(identifier, html)
+                self.assertIn('data-effort="rapido"', html)
+                self.assertIn('data-effort="equilibrado"', html)
+                self.assertIn('data-effort="alto"', html)
+                self.assertIn('@wikipedia', html)
+                self.assertIn('/pesquisar', html)
+                self.assertIn('SpeechRecognition', html)
                 self.assertNotIn('Maritaca AI', html)
                 self.assertNotIn('sabiazinho-4-br-sp', html)
         with patch('web_cloud.ler_config', return_value={'modelo':'sabiazinho-4-br-sp'}):
@@ -117,7 +123,7 @@ class DualModeTests(unittest.TestCase):
             self.assertEqual(out['resposta'],'Olá')
             self.assertEqual(out['modo'], 'mini')
             self.assertNotIn('motor', out)
-            self.assertEqual(api.call_args.args[0]['max_tokens'], 800)
+            self.assertEqual(api.call_args.args[0]['max_tokens'], 520)
             self.assertIn('respostas elaboradas', api.call_args.args[1][0]['content'])
             self.assertEqual(api.call_args.args[0]['modelo'],'sabiazinho-4-br-sp')
         with patch.dict(os.environ, {'THIGAS_MINI_UPSTREAM_URL':'https://exemplo.com/v1/chat/completions',
@@ -141,6 +147,40 @@ class DualModeTests(unittest.TestCase):
             self.assertEqual(kwargs.kwargs['buscar'],False)
             self.assertEqual(kwargs.args[1]['max_tokens'],220)
             self.assertEqual(kwargs.args[1]['temperatura'],0.25)
+
+
+    def test_effort_routes_to_quick_or_detailed(self):
+        cfg={'provedor':'maritaca','modelo':'sabiazinho-4-br-sp','api_key':'fake'}
+        with patch('web_cloud.ler_config',return_value=cfg), \
+             patch('web_cloud.mini_conversa',return_value={'resposta':'Detalhado','fontes':[]}) as mini, \
+             patch('web_cloud.conversa',return_value={'resposta':'Rápido','fontes':[]}) as nano:
+            with self.post({'modo':'mini','esforco':'rapido','pergunta':'Explique isso','wikipedia':False}) as r:
+                self.assertEqual(json.load(r)['resposta'],'Rápido')
+            nano.assert_called_once()
+            with self.post({'modo':'nano','esforco':'alto','pergunta':'Explique isso','wikipedia':False}) as r:
+                self.assertEqual(json.load(r)['resposta'],'Detalhado')
+            self.assertEqual(mini.call_args.kwargs['esforco'],'alto')
+
+    def test_invalid_effort_and_images(self):
+        with self.assertRaises(error.HTTPError) as e:
+            self.post({'modo':'mini','pergunta':'Olá','esforco':'nonsense'})
+        self.assertEqual(e.exception.code,400)
+        with self.assertRaises(error.HTTPError) as e:
+            self.post({'modo':'mini','pergunta':'Olá','imagem':{'nome':'falso.png',
+                       'dados':'data:image/png;base64,cmFuZG9t'}})
+        self.assertEqual(e.exception.code,400)
+
+    def test_valid_image_passed_as_ocr_payload(self):
+        from web_cloud import validar_imagem, mensagem_com_imagem
+        import base64
+        imagem=validar_imagem({
+            'nome':'exemplo.jpg',
+            'dados':'data:image/jpeg;base64,'+base64.b64encode(b'\xff\xd8\xff' + b'\x00'*50).decode()
+        })
+        conteudo=mensagem_com_imagem('Leia esse texto',imagem)
+        self.assertEqual(conteudo[0]['type'],'text')
+        self.assertEqual(conteudo[1]['type'],'image_url')
+        self.assertTrue(conteudo[1]['image_url']['url'].startswith('data:image/jpeg;base64,'))
 
     def test_user_facing_provider_errors_are_generic(self):
         with patch('web_cloud.ler_config',return_value={'provedor':'maritaca'}), \
