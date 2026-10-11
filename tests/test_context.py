@@ -23,7 +23,7 @@ class ContextTests(unittest.TestCase):
     def test_file_limits(self):
         for nome in ("malware.exe", "../../foto.png"):
             with self.assertRaises(site_tools.ContextError):
-                site_tools.documento(nome, b"Arquivo de texto aleatório")
+                site_tools.documento(nome, "Arquivo de texto aleatório".encode("utf-8"))
         with self.assertRaises(site_tools.ContextError):
             site_tools.documento("documento.txt", b"A" * (site_tools.MAX_FILE + 1))
         with self.assertRaises(site_tools.ContextError):
