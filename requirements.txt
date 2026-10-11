@@ -1,1 +1,3 @@
 # O THIGAS AI nano utiliza somente a biblioteca padrao do Python 3.13.
+pypdf==5.9.0
+python-docx==1.2.0
