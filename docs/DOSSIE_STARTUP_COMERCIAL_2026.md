@@ -3,7 +3,10 @@
 **Status:** documento preparatório; não é certificado de registro, parecer jurídico ou comprovação definitiva de autoria.
 
 ## 1. Identificação e escopo
-**Marca guarda-chuva proposta:** THIGAS AI / ThigasAI (disponibilidade no INPI ainda não confirmada).  
+**Empresa / nome comercial proposto:** **Brittech.inc** (denominação informada pelos responsáveis; constituição, disponibilidade do nome empresarial, marca e CNPJ não verificados).  
+**Marca e família de produtos:** **ThigasAI / THIGAS AI**, incluindo THIGAS AI mini, THIGAS AI nano, THIGAS AI e THIGAS Music.  
+**Relação proposta:** Brittech.inc será a empresa responsável pela operação comercial dos produtos ThigasAI, após formalização e definição contratual da titularidade.  
+**Situação da marca:** disponibilidade de ThigasAI e Brittech.inc no INPI ainda não confirmada.  
 **Responsáveis informados:** Thiago Fillipe Soares e sua esposa, cuja conta GitHub é `mayracanellasoares-bot`. A identificação civil e a titularidade patrimonial de cada contribuição devem ser confirmadas documentalmente.  
 **Objetivo:** organizar o inventário de ativos, identificar obrigações e lançar produtos de IA e música com monetização lícita no Brasil.
 
@@ -41,7 +44,7 @@ README identifica gateway Maritaca/Groq e PWA, não LLM autônoma. Divulgação 
 README atribui o código-base ao Musify, desenvolvido por Valeri Gokadze e colaboradores. Repositório inclui texto GPL-3.0, que exige obrigações ao distribuir binários, entre elas disponibilizar o código-fonte correspondente sob os termos aplicáveis e preservar avisos. O README alerta para divergência entre restrição comercial mencionada pelo upstream e o texto GPL: esclarecer procedência e permissões antes da monetização. Investigar direitos de música, streaming, letras, capa e downloads; não confundir licença do software com licença do conteúdo musical.
 
 ## 5. Marca, empresa e proteção
-1. Pesquisar gratuitamente THIGAS AI, ThigasAI e THIGAS Music e sinais similares na base do INPI; avaliar classes de serviços (especialmente 42), software baixável (9) e outras classes realmente pertinentes.
+1. Pesquisar gratuitamente Brittech.inc, BRITTECH, THIGAS AI, ThigasAI e THIGAS Music e sinais similares na base do INPI; avaliar classes de serviços (especialmente 42), software baixável (9) e outras classes realmente pertinentes.
 2. Marca requer pedido e taxa no INPI; a pesquisa e o uso de uma expressão não equivalem a registro nem garantem exclusividade. Pessoa física também pode requerer, observadas condições legais.
 3. O direito autoral do código surge sem depósito, mas o registro de programa no INPI pode ajudar a provar autoria/titularidade; registro eletrônico é pago (portal federal atualmente informa R$ 210 para código 730).
 4. Nome empresarial na Junta Comercial, domínio de internet e registro de marca são instrumentos distintos.
@@ -51,6 +54,7 @@ README atribui o código-base ao Musify, desenvolvido por Valeri Gokadze e colab
 Fontes oficiais: https://www.gov.br/inpi/pt-br ; https://www.gov.br/pt-br/servicos/solicitar-o-registro-de-programa-de-computador ; https://www.gov.br/empresas-e-negocios/pt-br/redesim
 
 ## 6. Estratégia comercial inicial
+**Empresa proponente:** Brittech.inc (nome informado, sujeito a verificação e eventual registro). **Marcas comerciais:** ThigasAI e THIGAS Music (sujeitas a pesquisa/registro).  
 **Proposta de valor:** assistente em português para programação, educação e documentos, com opção futura de uso de modelos locais; aplicativos complementares sob a marca.
 
 **Oferta piloto:**
