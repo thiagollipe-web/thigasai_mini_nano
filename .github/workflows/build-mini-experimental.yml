@@ -1,0 +1,61 @@
+name: Treinar e exportar THIGAS Mini experimental GGUF
+on:
+  push:
+    branches: [experimental-mini-gguf]
+    paths:
+      - "experimental_mini/**"
+      - ".github/workflows/build-mini-experimental.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar PyTorch CPU e NumPy
+        run: |
+          python -m pip install --disable-pip-version-check numpy==1.26.4
+          python -m pip install --disable-pip-version-check "torch==2.5.1" --index-url https://download.pytorch.org/whl/cpu
+      - name: Treinar e exportar GGUF
+        env:
+          THIGAS_TRAIN_STEPS: "250"
+          OMP_NUM_THREADS: "2"
+          OPENBLAS_NUM_THREADS: "1"
+        run: python -u experimental_mini/train_and_export.py
+      - name: Validar a estrutura e o tamanho do GGUF
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import struct,json,hashlib
+          p=Path('models/THIGAS_AI_mini_experimental-6M-F16.gguf')
+          data=p.read_bytes()
+          magic,version,ntensor,nmeta=struct.unpack_from('<4sIQQ',data)
+          assert magic==b'GGUF' and version==3 and ntensor==76 and nmeta>=15
+          assert 8_000_000 < len(data) < 25_000_000
+          report=json.loads(Path('models/THIGAS_AI_mini_experimental-6M.json').read_text())
+          assert report['sha256_gguf']==hashlib.sha256(data).hexdigest()
+          assert report['loss_validacao_final'] < report['loss_validacao_inicial']
+          print('GGUF validado:',len(data),'bytes;',ntensor,'tensores; loss',report['loss_validacao_inicial'],'->',report['loss_validacao_final'])
+          PY
+      - name: Publicar modelo na branch experimental
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add models/THIGAS_AI_mini_experimental-6M-F16.gguf models/THIGAS_AI_mini_experimental-6M.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Adicionar pesos realmente treinados e GGUF experimental de 6M"
+            git push origin HEAD:experimental-mini-gguf
+          fi
+      - name: Anexar checkpoint para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: THIGAS_AI_mini_experimental-6M-checkpoint
+          path: |
+            models/THIGAS_AI_mini_experimental-6M-ckpt.pt
+            models/THIGAS_AI_mini_experimental-6M.json
+          retention-days: 30
