@@ -1,0 +1,43 @@
+name: Preparar runtime GGUF para navegador
+on:
+  push:
+    branches: [train-thigas-03b-06b]
+    paths:
+      - ".github/workflows/vendor-wllama.yml"
+permissions:
+  contents: write
+jobs:
+  copiar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Baixar pacote oficial wllama v3.8.1
+        run: |
+          mkdir -p /tmp/thigas-wllama assets/wllama
+          npm pack @wllama/wllama@3.8.1 --pack-destination /tmp/thigas-wllama
+          tar -xzf /tmp/thigas-wllama/*.tgz -C /tmp/thigas-wllama
+          test -f /tmp/thigas-wllama/package/esm/index.js
+          find /tmp/thigas-wllama/package/esm -maxdepth 3 -type f | head -55
+          du -sh /tmp/thigas-wllama/package/esm
+          cp -R /tmp/thigas-wllama/package/esm assets/wllama/
+          find assets/wllama/esm -type f -name '*.map' -delete
+          du -sh assets/wllama/esm
+          python - <<'PY'
+          from pathlib import Path
+          assert Path('assets/wllama/esm/index.js').exists()
+          wasm=list(Path('assets/wllama/esm').rglob('*.wasm'))
+          assert wasm, 'wllama requer WebAssembly'
+          for f in wasm:
+              print('WASM',f,f.stat().st_size)
+              assert f.stat().st_size<100_000_000, 'arquivo grande demais para GitHub'
+          PY
+      - name: Publicar binários de execução no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/wllama/esm
+          git diff --cached --quiet || git commit -m "Vendor wllama 3.8.1 para GGUF no navegador"
+          git push
