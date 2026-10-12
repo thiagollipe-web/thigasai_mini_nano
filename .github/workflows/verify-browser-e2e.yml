@@ -4,6 +4,9 @@ on:
     branches: [train-thigas-03b-06b]
     paths:
       - "tests/browser_gguf_e2e.cjs"
+      - "web_cloud.py"
+      - "index.html"
+      - "local_gguf.js"
       - ".github/workflows/verify-browser-e2e.yml"
   workflow_dispatch:
 permissions:

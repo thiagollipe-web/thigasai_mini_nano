@@ -24,7 +24,12 @@ const tests = [
   });
   const page = await context.newPage();
   const pageErrors = [];
-  page.on('pageerror', e => pageErrors.push(e.stack || e.message));
+  let firstBrowserError;
+  const browserError = new Promise((_,reject)=>{firstBrowserError=reject});
+  page.on('pageerror', e => {
+    pageErrors.push(e.stack || e.message);
+    firstBrowserError(new Error('Erro na execução do navegador: '+String(e.message||e)));
+  });
   page.on('console', message => {
     if (message.type() === 'error') console.log('[console:error]', message.text().slice(0, 800));
   });
@@ -39,17 +44,20 @@ const tests = [
       console.log('\nE2E: lendo', label, file);
       await page.locator('#gguf-file').setInputFiles(path.resolve(file));
       const banner = page.locator('#local-runtime');
-      await banner.waitFor({ state: 'visible', timeout: 240_000 });
+      await Promise.race([banner.waitFor({ state: 'visible', timeout: 200_000 }), browserError]);
       const title = await page.locator('#local-runtime-name').textContent();
       console.log('Carregado:', title);
       assert.match(title.toLowerCase(), new RegExp(label), 'Deve mostrar o arquivo correto');
       await page.locator('#prompt').fill('Responda em português com uma frase curta: o que é Python?');
       await page.locator('#send').click();
       const answer = page.locator('.msg.assistant').last();
-      await page.waitForFunction(() => {
-        const els = [...document.querySelectorAll('.msg.assistant')];
-        return els.length > 0 && (els[els.length - 1]?.textContent || '').includes('Processado localmente');
-      }, null, { timeout: 240_000 });
+      await Promise.race([
+        page.waitForFunction(() => {
+          const els = [...document.querySelectorAll('.msg.assistant')];
+          return els.length > 0 && (els[els.length - 1]?.textContent || '').includes('Processado localmente');
+        }, null, { timeout: 200_000 }),
+        browserError
+      ]);
       const text = await answer.textContent();
       assert.ok(text.includes('Processado localmente'), 'Inferência no navegador, sem serviço de IA');
       console.log('RESPOSTA', label, JSON.stringify(text.slice(0, 800)));
