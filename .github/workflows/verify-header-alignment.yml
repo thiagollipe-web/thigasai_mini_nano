@@ -1,0 +1,58 @@
+name: Conferir alinhamento do histórico
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "tests/header_alignment_e2e.cjs"
+      - ".github/workflows/verify-header-alignment.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      THIGAS_CLOUD_MODE: "1"
+      THIGAS_SITE_PASSWORD: "senha-de-testes-segura"
+      MARITACA_API_KEY: "chave-simulada-nao-usar-api"
+      PORT: "18019"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preparar Chromium e backend
+        run: |
+          python -m pip install -r requirements.txt
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Validar geometria do botão em desktop e celular
+        run: |
+          python web_cloud.py > /tmp/thigas-alignment-server.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          python - <<'PY'
+          import urllib.request,time
+          for i in range(80):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:18019/health',timeout=2) as response:
+                      if response.status==200:break
+              except Exception:pass
+              time.sleep(.25)
+          else:raise SystemExit('Servidor não iniciou')
+          PY
+          node tests/header_alignment_e2e.cjs
+      - name: Preservar captura para diagnóstico em falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: header-alignment-diagnostic
+          path: |
+            header-alignment-failure.png
+            /tmp/thigas-alignment-server.log
+          retention-days: 7
