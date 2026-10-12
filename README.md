@@ -1,3 +1,15 @@
+<p align="center">
+  <img src="assets/brittech/brittech-logo.svg" alt="Brittech.inc — tecnologia e inteligência artificial" width="900"/>
+</p>
+
+<p align="center"><strong>Brittech.inc</strong> · Iniciativa de tecnologia e IA · Fundador: <strong>Thiago Fillipe Soares</strong></p>
+
+<p align="center">Projeto <strong>THIGAS AI mini / nano</strong> · <a href="assets/brittech/BRANDING.md">Identidade visual da Brittech.inc</a> · <a href="docs/DOSSIE_STARTUP_COMERCIAL_2026.md">Dossiê comercial</a></p>
+
+> **Transparência técnica:** neste site, as opções Mini e Nano são perfis de resposta que utilizam uma API de IA externa por padrão. Os modelos treinados separadamente são projetos distintos. **Brittech.inc é um nome empresarial proposto, ainda sujeito à formalização.**
+
+---
+
 ## Histórico lateral de conversas (v0.9)
 
 No computador, o **histórico aparece à esquerda**, organizado por Hoje, Ontem,
