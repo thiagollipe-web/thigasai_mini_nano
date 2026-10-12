@@ -608,6 +608,8 @@ $('gguf-file').addEventListener('change',async e=>{
  const file=e.target.files?.[0];e.target.value='';
  if(!file||state.busy)return;
  setBusy(true);
+ $('local-runtime').hidden=true;
+ $('status').textContent='● Carregando '+file.name+' neste dispositivo...';
  announce('Carregando pesos GGUF no navegador; a primeira execução pode demorar...',11000);
  try{
   const info=await window.THIGASBrowserGGUF.load(file);
@@ -616,6 +618,7 @@ $('gguf-file').addEventListener('change',async e=>{
   input.focus();
  }catch(err){
   updateLocalModelUI();
+  if(!window.THIGASBrowserGGUF.hasModel())$('status').textContent='● THIGAS AI em nuvem';
   announce('Não foi possível carregar GGUF: '+String(err.message||err),11000);
  }finally{setBusy(false)}
 });

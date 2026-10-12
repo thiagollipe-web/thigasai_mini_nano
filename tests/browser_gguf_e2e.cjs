@@ -44,7 +44,15 @@ const tests = [
       console.log('\nE2E: lendo', label, file);
       await page.locator('#gguf-file').setInputFiles(path.resolve(file));
       const banner = page.locator('#local-runtime');
-      await Promise.race([banner.waitFor({ state: 'visible', timeout: 200_000 }), browserError]);
+      await Promise.race([
+        banner.waitFor({ state: 'visible', timeout: 200_000 }).then(()=>
+          page.waitForFunction(expected => {
+            const text=document.querySelector('#local-runtime-name')?.textContent?.toLowerCase()||'';
+            return text.includes(expected);
+          }, label, {timeout:200_000})
+        ),
+        browserError
+      ]);
       const title = await page.locator('#local-runtime-name').textContent();
       console.log('Carregado:', title);
       assert.match(title.toLowerCase(), new RegExp(label), 'Deve mostrar o arquivo correto');
