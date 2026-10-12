@@ -158,6 +158,15 @@
 .header-left .brand{min-width:0;flex:1 1 auto}
 .header-left .brand strong{white-space:nowrap}
 .header-left .brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header-left .brand>div{min-width:0}
+.new-chat-glyph{font-size:17px;line-height:1.1;vertical-align:-1px}
+@media(max-width:360px){
+ .top-inner{gap:8px}
+ .top-actions{gap:4px}
+ #new-chat{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;padding:0;border-radius:11px}
+ .new-chat-label{display:none}
+ .header-left .brand strong{font-size:15px;text-overflow:ellipsis;overflow:hidden}
+}
 .sidebar-toggle:hover{background:#f1f3eb}
 .topbar{position:relative}
 .top-inner{gap:12px}
@@ -221,7 +230,7 @@
    </div>
   </div>
   <div class="top-actions">
-   <button id="new-chat" class="text-btn" type="button">＋ Nova conversa</button>
+   <button id="new-chat" class="text-btn" type="button" aria-label="Nova conversa"><span class="new-chat-glyph" aria-hidden="true">＋</span><span class="new-chat-label">Nova conversa</span></button>
    <button id="install-pwa" class="text-btn" type="button" hidden>Instalar app</button>
   </div>
  </div>
