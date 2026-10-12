@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 300 300" role="img" aria-label="Símbolo Brittech.inc: letra B, perfil humano e circuitos de inteligência artificial"><defs>
+<linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#064580"/><stop offset=".45" stop-color="#06274D"/><stop offset="1" stop-color="#007BC3"/></linearGradient>
+<linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#02E0DF"/><stop offset="1" stop-color="#0469A5"/></linearGradient>
+<linearGradient id="face" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FCFFFF"/><stop offset="1" stop-color="#B8CBDD"/></linearGradient>
+</defs><path d="M30 22H144C218 22 266 51 266 97C266 123 247 146 227 153C259 165 279 189 279 222C279 266 234 282 145 282H30V22Z" fill="url(#b)"/>
+<path d="M30 22H143C203 22 256 47 266 96C243 61 204 52 150 57C98 60 54 49 30 22Z" fill="url(#cyan)" opacity=".95"/>
+<path d="M30 282C77 225 119 216 153 233C201 248 237 249 279 222C271 269 228 282 145 282Z" fill="url(#cyan)" opacity=".72"/>
+<path d="M30 145H101C109 145 115 151 120 157H30V145Z" fill="#F7FBFF"/>
+<path d="M166 63C188 77 210 104 215 125L230 140C232 144 229 150 222 152L218 165C225 169 225 175 217 180L213 188C216 197 210 210 200 213C188 215 174 207 165 193C154 177 143 168 130 158C159 149 172 113 166 63Z" fill="url(#face)"/>
+<g fill="none" stroke="#D8F2FC" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M70 90H115Q130 90 141 108L162 132"/><path d="M56 125H103Q127 125 136 142L165 161"/><path d="M51 179H96Q120 179 133 199L157 216"/><path d="M53 222H101Q129 222 145 239"/></g>
+<g fill="#08D9E1"><circle cx="70" cy="90" r="10"/><circle cx="51" cy="179" r="11"/><circle cx="150" cy="161" r="10"/><circle cx="145" cy="239" r="10"/></g>
+<g fill="#F6FBFF"><circle cx="56" cy="125" r="10"/><circle cx="53" cy="222" r="10"/><circle cx="125" cy="193" r="9"/></g></svg>
