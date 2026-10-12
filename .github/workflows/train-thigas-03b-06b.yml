@@ -1,0 +1,102 @@
+name: Treinar THIGAS AI 0.3B e 0.6B
+on:
+  push:
+    branches: [train-thigas-03b-06b]
+    paths:
+      - "models/treino_03b_06b/**"
+      - ".github/workflows/train-thigas-03b-06b.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fine_tuning:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: nano
+            release_tag: thigas-nano-03b-v1
+            artifact: THIGAS_AI_nano_03B_Q4_K_M.gguf
+            context: 2048
+          - variant: mini
+            release_tag: thigas-mini-06b-v1
+            artifact: THIGAS_AI_mini_06B_Q4_K_M.gguf
+            context: 4096
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    env:
+      TOKENIZERS_PARALLELISM: "false"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      OMP_NUM_THREADS: "4"
+      MKL_NUM_THREADS: "4"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Verificar memória e espaço
+        run: |
+          free -h
+          df -h .
+          nproc
+          python -m py_compile models/treino_03b_06b/treinar.py
+      - name: Instalar bibliotecas para treinamento CPU
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install "transformers==4.57.3" "peft==0.17.1" "accelerate==1.10.1" "huggingface_hub>=0.34,<1" safetensors sentencepiece protobuf
+      - name: Executar treinamento supervisionado LoRA e fundir pesos
+        run: |
+          python -u models/treino_03b_06b/treinar.py --variant "${{ matrix.variant }}" --output ./build_models
+      - name: Compilar utilitários GGUF de llama.cpp
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libcurl4-openssl-dev cmake g++
+          git clone --depth 1 https://github.com/ggml-org/llama.cpp /tmp/thigas-llama
+          python -m pip install /tmp/thigas-llama/gguf-py
+          cmake -S /tmp/thigas-llama -B /tmp/thigas-llama/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_CURL=OFF
+          cmake --build /tmp/thigas-llama/build -j 4 --target llama-quantize llama-cli
+      - name: Converter pesos fundidos e quantizar Q4_K_M
+        run: |
+          python /tmp/thigas-llama/convert_hf_to_gguf.py "./build_models/${{ matrix.variant }}/merged" \
+            --outfile /tmp/thigas-f16.gguf --outtype f16
+          /tmp/thigas-llama/build/bin/llama-quantize /tmp/thigas-f16.gguf "${{ matrix.artifact }}" Q4_K_M
+          test -s "${{ matrix.artifact }}"
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+          gguf=Path("${{ matrix.artifact }}")
+          report=json.loads(Path("build_models/${{ matrix.variant }}/report.json").read_text())
+          with gguf.open('rb') as f:
+              assert f.read(4)==b'GGUF'
+          report['filename']=gguf.name
+          report['bytes']=gguf.stat().st_size
+          report['sha256']=hashlib.sha256(gguf.read_bytes()).hexdigest()
+          report['quantization']='Q4_K_M'
+          report['tested_inference_context']=int("${{ matrix.context }}")
+          Path("train_report_${{ matrix.variant }}.json").write_text(
+            json.dumps(report,indent=2,ensure_ascii=False),encoding='utf8')
+          print(json.dumps(report,indent=2,ensure_ascii=False))
+          PY
+      - name: Testar carregamento e geração reais pelo llama.cpp
+        run: |
+          timeout 150 /tmp/thigas-llama/build/bin/llama-cli \
+             -m "${{ matrix.artifact }}" \
+             -c "${{ matrix.context }}" -n 48 \
+             -p "Explique em português o que é uma variável em Python." \
+             -no-cnv --temp 0.3 > "amostra_${{ matrix.variant }}.txt" 2>&1
+          tail -n 30 "amostra_${{ matrix.variant }}.txt"
+      - name: Publicar modelo GGUF treinado na Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ matrix.release_tag }}" \
+             "${{ matrix.artifact }}" \
+             "train_report_${{ matrix.variant }}.json" \
+             "amostra_${{ matrix.variant }}.txt" \
+             --repo "${{ github.repository }}" \
+             --target "${{ github.sha }}" \
+             --title "THIGAS AI ${{ matrix.variant }} GGUF Q4_K_M" \
+             --notes "Base Apache 2.0 ajustada por LoRA neste projeto. Veja o relatório de treino, sha256, contexto de teste e limitações."
