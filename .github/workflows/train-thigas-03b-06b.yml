@@ -80,14 +80,27 @@ jobs:
             json.dumps(report,indent=2,ensure_ascii=False),encoding='utf8')
           print(json.dumps(report,indent=2,ensure_ascii=False))
           PY
+      - name: Preservar pesos GGUF como artefatos, mesmo se o teste de geração falhar
+        uses: actions/upload-artifact@v4
+        with:
+          name: modelo-${{ matrix.variant }}-GGUF
+          path: |
+            ${{ matrix.artifact }}
+            train_report_${{ matrix.variant }}.json
+          retention-days: 30
       - name: Testar carregamento e geração reais pelo llama.cpp
         run: |
+          set +e
           timeout 150 /tmp/thigas-llama/build/bin/llama-cli \
              -m "${{ matrix.artifact }}" \
              -c "${{ matrix.context }}" -n 48 \
              -p "Explique em português o que é uma variável em Python." \
              -no-cnv --temp 0.3 > "amostra_${{ matrix.variant }}.txt" 2>&1
-          tail -n 30 "amostra_${{ matrix.variant }}.txt"
+          result=$?
+          set -e
+          echo "Resultado llama-cli: $result"
+          tail -n 120 "amostra_${{ matrix.variant }}.txt"
+          exit "$result"
       - name: Publicar modelo GGUF treinado na Release
         env:
           GH_TOKEN: ${{ github.token }}
