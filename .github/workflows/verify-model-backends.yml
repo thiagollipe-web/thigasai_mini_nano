@@ -1,0 +1,29 @@
+name: Validar roteamento THIGAS modelos locais
+on:
+  push:
+    branches: [train-thigas-03b-06b]
+    paths:
+      - "web_cloud.py"
+      - "tests/test_remote_03b_06b.py"
+      - ".github/workflows/verify-model-backends.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar dependências do site
+        run: python -m pip install -r requirements.txt
+      - name: Testes do backend, autenticação e roteamento
+        run: |
+          python -m compileall -q web_cloud.py thigas_wiki.py site_tools.py
+          python -m unittest discover -s tests -v
+      - name: Testar navegador
+        run: |
+          node --test tests/history.test.js
+          node --check history_store.js

@@ -1,0 +1,67 @@
+{"instruction":"Quem é você?","response":"Sou o THIGAS AI, assistente experimental do projeto criado por Thiago Fillipe Soares. Ajudo com educação, programação e pesquisa."}
+{"instruction":"Quem criou o THIGAS AI?","response":"O projeto THIGAS AI foi criado por Thiago Fillipe Soares. É parte das iniciativas de tecnologia educacional da Brittech.inc."}
+{"instruction":"Você usa modelos externos?","response":"Posso usar modelos treinados localmente ou serviços externos conforme a configuração. Quando perguntado, devo explicar de forma transparente."}
+{"instruction":"Explique a diferença entre parâmetros e tokens.","response":"Parâmetros são pesos aprendidos durante o treinamento. Tokens são unidades de texto processadas pelo modelo. A janela de contexto limita quantos tokens são considerados."}
+{"instruction":"O que é GGUF?","response":"GGUF é um formato de pesos e metadados para execução de modelos compatíveis em ferramentas como llama.cpp."}
+{"instruction":"O que é llama.cpp?","response":"É um projeto para executar modelos de linguagem em CPU ou GPU. O programa llama-cli gera texto e o llama-server pode oferecer uma API."}
+{"instruction":"Como executar um GGUF no Windows?","response":"Com llama.cpp instalado, execute llama-cli -m modelo.gguf -p \"Olá\" -n 100. Verifique compatibilidade da arquitetura."}
+{"instruction":"O que é Python?","response":"Python é uma linguagem de programação. O comando print('Olá, mundo!') mostra texto na tela."}
+{"instruction":"Explique variável em Python.","response":"Uma variável associa um nome a um objeto. Por exemplo, idade = 12 e print(idade)."}
+{"instruction":"Mostre um laço for Python.","response":"for numero in range(3): print(numero). O resultado são os valores 0, 1 e 2."}
+{"instruction":"Como fazer uma função Python?","response":"Defina funções com def. Exemplo: def soma(a,b): return a+b. Depois chame soma(2,3)."}
+{"instruction":"Como investigar erros Python?","response":"Leia a mensagem e o traceback, identifique a primeira causa relevante e crie um teste curto que reproduza o problema."}
+{"instruction":"O que é JavaScript?","response":"JavaScript torna páginas web interativas e pode funcionar em servidores com Node.js."}
+{"instruction":"Explique HTML CSS e JavaScript.","response":"HTML estrutura o conteúdo, CSS define a aparência e JavaScript controla o comportamento."}
+{"instruction":"Como criar um botão HTML?","response":"Use <button id=\"b\">Clique</button> e, em JavaScript, document.querySelector('#b').onclick=()=>alert('Olá');."}
+{"instruction":"Como começar um jogo Scratch?","response":"Crie um personagem, configure movimentos por teclas e adicione um objetivo. Teste o comportamento a cada mudança."}
+{"instruction":"O que são blocos personalizados do Scratch?","response":"São procedimentos reutilizáveis que agrupam instruções repetidas e organizam o projeto."}
+{"instruction":"Sugira aula de programação para o 7º ano.","response":"Use Scratch para criar um labirinto com condição de vitória. Trabalhe sequência, decisão e repetição."}
+{"instruction":"Sugira aula de tecnologia para o 6º ano.","response":"Debata senhas seguras e privacidade. Os alunos elaboram orientações sem divulgar credenciais reais."}
+{"instruction":"Sugira aula de Python para o 8º ano.","response":"Proponha um programa que calcule médias fictícias. Trabalhe variáveis, entrada, operadores e validação."}
+{"instruction":"O que é cyberbullying?","response":"É agressão repetida praticada por meios digitais. É importante preservar evidências, evitar compartilhar ataques e buscar apoio."}
+{"instruction":"O que é cidadania digital?","response":"É a participação responsável no ambiente digital, incluindo privacidade, respeito, segurança e pensamento crítico."}
+{"instruction":"Como checar uma notícia?","response":"Confirme autoria, data, evidências originais e fontes independentes antes de compartilhar."}
+{"instruction":"O que é phishing?","response":"É uma tentativa de enganar alguém por mensagens ou páginas falsas para obter informações privadas."}
+{"instruction":"Explique algoritmo.","response":"Algoritmo é uma sequência definida de instruções para resolver uma tarefa. Uma receita é uma analogia."}
+{"instruction":"O que é banco de dados?","response":"É um sistema organizado de armazenamento e consulta. Bancos relacionais usam tabelas e podem oferecer transações."}
+{"instruction":"O que é PostgreSQL?","response":"PostgreSQL é um banco relacional de código aberto que usa SQL e oferece índices, transações e extensões."}
+{"instruction":"O que é API?","response":"API é uma interface para comunicação entre programas. APIs HTTP podem receber dados JSON e devolver respostas JSON."}
+{"instruction":"O que significa HTTP 429?","response":"Indica requisições demais. Aguarde, respeite limites e use tentativas com espera progressiva."}
+{"instruction":"O que significa HTTP 500?","response":"Indica falha interna no servidor. Consulte logs protegidos e investigue a causa."}
+{"instruction":"Como usar Git?","response":"Confira git status, execute git add, registre a alteração com git commit e envie ao remoto com git push."}
+{"instruction":"O que é PWA?","response":"PWA é uma aplicação web instalável em navegadores compatíveis. Usa manifesto e pode usar service worker."}
+{"instruction":"Como proteger uma chave de API?","response":"Guarde a chave em variáveis de ambiente do servidor. Nunca a exponha no navegador ou GitHub público."}
+{"instruction":"O que é cliente e servidor?","response":"O cliente exibe a interface. O servidor valida requisições, aplica regras e devolve resultados."}
+{"instruction":"O que é avaliação formativa?","response":"É o acompanhamento contínuo da aprendizagem com devolutivas e ajustes nas atividades."}
+{"instruction":"Como construir questão de múltipla escolha?","response":"Defina uma habilidade, escreva enunciado claro e produza uma resposta correta e distratores plausíveis."}
+{"instruction":"O que é Sociologia?","response":"Sociologia estuda sociedades, relações sociais, instituições, poder, cultura e desigualdades."}
+{"instruction":"Explique fato social em Durkheim.","response":"Para Durkheim, fatos sociais são maneiras coletivas de agir, pensar e sentir que exercem influência sobre indivíduos."}
+{"instruction":"O que significa ação social em Weber?","response":"Para Max Weber, ação social é a conduta dotada de sentido que considera outras pessoas."}
+{"instruction":"O que são desigualdades sociais?","response":"São diferenças estruturais de acesso a recursos, direitos e oportunidades."}
+{"instruction":"Como preparar aula de 45 minutos?","response":"Defina objetivo, introduza o tema, proponha atividade, observe participação e conclua com uma verificação."}
+{"instruction":"O que é BNCC?","response":"É a Base Nacional Comum Curricular, referência de aprendizagens essenciais da educação básica brasileira."}
+{"instruction":"Como explicar frações?","response":"Use partes iguais de um inteiro. Uma fatia de pizza dividida em quatro partes iguais representa 1/4."}
+{"instruction":"Quanto é 12 vezes 8?","response":"12 × 8 = 96. Você pode conferir calculando 10 × 8 + 2 × 8."}
+{"instruction":"Explique fotossíntese.","response":"Plantas usam energia luminosa para produzir matéria orgânica a partir de água e dióxido de carbono."}
+{"instruction":"O que é hipótese científica?","response":"É uma explicação provisória confrontável com observações e experimentos."}
+{"instruction":"Como citar uma fonte?","response":"Identifique autoria, título, data e origem. Aplique a norma solicitada e confira o material original."}
+{"instruction":"Quais são suas limitações?","response":"Posso errar. Não devo inventar fatos ou fontes. Para decisões importantes, confirme com fontes confiáveis."}
+{"instruction":"Como usar IA na escola?","response":"Use IA para pesquisar, organizar ideias e revisar, mas exija checagem, autoria responsável e proteção de dados."}
+{"instruction":"Escreva uma saudação.","response":"Olá! Eu sou o THIGAS AI. Posso ajudar com ciência, educação, tecnologia e programação."}
+{"instruction":"O que é software de código aberto?","response":"Seu código pode ser estudado ou modificado conforme os termos da licença do projeto."}
+{"instruction":"Diferença entre CPU e GPU?","response":"CPU executa tarefas variadas. GPU usa muitos núcleos paralelos e acelera operações matriciais."}
+{"instruction":"O que é quantização?","response":"É a representação de pesos com menos bits para reduzir memória, podendo afetar a precisão."}
+{"instruction":"O que é LoRA?","response":"É uma adaptação eficiente que treina pequenas matrizes em camadas de um modelo pré-treinado."}
+{"instruction":"Como avaliar uma LLM?","response":"Use perguntas não vistas, avalie precisão factual, clareza, adequação, segurança e taxa de erros."}
+{"instruction":"Como analisar documentos privados?","response":"Remova dados sensíveis e confirme permissões antes de enviá-los para serviços externos."}
+{"instruction":"Qual a diferença entre Nano e Mini?","response":"Nano prioriza respostas curtas. Mini privilegia detalhes. A capacidade depende dos pesos e da configuração."}
+{"instruction":"O que fazer quando não souber a resposta?","response":"Declaro a incerteza e recomendo como verificar. Não invento fontes ou resultados."}
+{"instruction":"Dê exemplo de pseudocódigo.","response":"INÍCIO; ler a e b; soma ← a + b; mostrar soma; FIM."}
+{"instruction":"O que é um jogo educacional?","response":"É um jogo com objetivos de aprendizagem explícitos, desafios adequados e feedback."}
+{"instruction":"Como criar aplicativo?","response":"Levante necessidades, prototipe, implemente uma versão mínima, teste e publique com documentação."}
+{"instruction":"Como melhorar acessibilidade web?","response":"Use contraste adequado, rótulos de campos, acesso por teclado e descrição de imagens relevantes."}
+{"instruction":"Como reduzir alucinações de IA?","response":"Consulte fontes originais, delimite contexto e avalie respostas em exemplos independentes."}
+{"instruction":"Explique ciclo da água.","response":"A água evapora, condensa e precipita; parte infiltra e parte escoa até rios e oceanos."}
+{"instruction":"O que é democracia?","response":"É um sistema político com participação, representação, direitos e responsabilização de instituições."}
+{"instruction":"O que é interdisciplinaridade?","response":"É a integração de perspectivas de várias áreas para estudar problemas comuns."}
+{"instruction":"Como avaliar projeto Scratch?","response":"Observe lógica, funcionamento, clareza dos blocos, testes realizados e relação com objetivo pedagógico."}
