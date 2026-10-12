@@ -61,6 +61,24 @@ class BrowserGGUFTests(unittest.TestCase):
                 self.get(path)
             self.assertEqual(raised.exception.code,404)
 
+    def test_chat_format_is_authenticated_and_preserves_current_site(self):
+        with self.assertRaises(error.HTTPError) as unauthorized:
+            self.get('/chat_format.js',auth=False)
+        self.assertEqual(unauthorized.exception.code,401)
+        with self.get('/chat_format.js') as response:
+            body=response.read().decode('utf-8')
+            self.assertIn('THIGASChatFormat',body)
+            self.assertEqual(response.headers['Cache-Control'],'no-store')
+        with self.get('/') as response:
+            html=response.read().decode('utf-8')
+        self.assertIn('<script src="/chat_format.js"></script>',html)
+        self.assertIn('THIGASChatFormat.render(content,item.text)',html)
+        self.assertIn('THIGASChatFormat.toPlainText(item.text)',html)
+        self.assertIn('id="gguf-file"',html)
+        with self.get('/sw.js') as response:
+            sw=response.read().decode('utf-8')
+        self.assertNotIn("'/chat_format.js'",sw)
+
     def test_wikipedia_requires_login_and_only_returns_sources(self):
         with self.assertRaises(error.HTTPError) as raised:
             self.get('/api/wiki?q=Einstein',auth=False)

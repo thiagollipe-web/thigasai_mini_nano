@@ -26,6 +26,7 @@ INDEX = (BASE / 'index.html').read_bytes()
 LOCAL_GGUF_JS = (BASE / 'local_gguf.js').read_bytes()
 WLLAMA_ROOT = (BASE / 'assets' / 'wllama' / 'esm').resolve()
 HISTORY_JS = (BASE / 'history_store.js').read_bytes()
+CHAT_FORMAT_JS = (BASE / 'chat_format.js').read_bytes()
 CAPIVARA = (BASE / 'assets' / 'capivara.svg').read_bytes()
 # Somente recursos estáticos públicos podem ser guardados offline.
 # Arquivos de configuração, HTML autenticado e respostas da API nunca são cacheados.
@@ -292,6 +293,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_body(200, INDEX, 'text/html; charset=utf-8')
         if path == '/history_store.js':
             return self.send_body(200, HISTORY_JS, 'text/javascript; charset=utf-8')
+        if path == '/chat_format.js':
+            return self.send_body(200, CHAT_FORMAT_JS, 'text/javascript; charset=utf-8')
         if path == '/assets/capivara.svg':
             return self.send_body(200, CAPIVARA, 'image/svg+xml; charset=utf-8')
         if path == '/api/status':

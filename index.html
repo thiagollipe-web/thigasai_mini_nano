@@ -40,6 +40,25 @@
 .msg.assistant .msg-body{flex:1;padding-top:3px}
 .msg.user .msg-body{max-width:min(660px,87%);background:#e7e9df;border-radius:20px 20px 6px 20px;padding:10px 15px}
 .msg-text{white-space:pre-wrap}
+/* Respostas da IA usam formatação visual, sem marcadores Markdown aparentes. */
+.msg.assistant .msg-text{white-space:normal;overflow-wrap:anywhere}
+.msg.assistant .msg-text p{margin:0 0 .78em;line-height:1.7}
+.msg.assistant .msg-text p:last-child{margin-bottom:0}
+.msg.assistant .msg-text h3{font-size:1.09rem;line-height:1.4;font-weight:750;color:#37432d;margin:1.15em 0 .45em;letter-spacing:-.15px}
+.msg.assistant .msg-text h4{font-size:1rem;line-height:1.4;font-weight:700;color:#37432d;margin:1.1em 0 .4em}
+.msg.assistant .msg-text h3:first-child,.msg.assistant .msg-text h4:first-child{margin-top:0}
+.msg.assistant .msg-text strong{font-weight:735;color:#303a27}
+.msg.assistant .msg-text em{font-style:italic}
+.msg.assistant .msg-text ul,.msg.assistant .msg-text ol{margin:.32em 0 .85em;padding-left:1.55em}
+.msg.assistant .msg-text li{padding-left:.1em;margin:.3em 0;line-height:1.6}
+.msg.assistant .msg-text pre{max-width:100%;overflow-x:auto;background:#252b25;color:#eef2e9;border-radius:12px;padding:13px 15px;margin:12px 0;font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre;tab-size:4}
+.msg.assistant .msg-text pre code{background:none;padding:0;color:inherit;white-space:inherit;overflow-wrap:normal;word-break:normal}
+.msg.assistant .msg-text :not(pre)>code{background:#e9ece3;color:#384930;border-radius:5px;padding:2px 5px;font:12px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}
+.msg.assistant .msg-text blockquote{margin:.7em 0 .9em;padding:.2em 0 .2em 12px;border-left:3px solid #889775;color:#4d5746}
+.msg.assistant .msg-text blockquote p{margin:0}
+.msg.assistant .msg-text hr{border:0;border-top:1px solid #d8d9d0;margin:13px 0}
+.msg.assistant .msg-text a{color:#376544;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}
+
 .sources{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
 .sources a{border:1px solid #ced4bf;border-radius:9px;background:#f0f3eb;color:var(--green-2);text-decoration:none;font-size:12px;padding:5px 9px}
 .sources a:hover{text-decoration:underline}
@@ -260,6 +279,7 @@
 </div>
 <script src="/history_store.js"></script>
 <script src="/local_gguf.js"></script>
+<script src="/chat_format.js"></script>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
@@ -439,7 +459,10 @@ function renderMessage(item){
   img.src='/assets/capivara.svg';img.alt='THIGAS AI';ava.append(img);article.append(ava);
  }
  const body=document.createElement('div');body.className='msg-body';
- const content=document.createElement('div');content.className='msg-text';content.textContent=item.text;body.append(content);
+ const content=document.createElement('div');content.className='msg-text';
+ if(item.role==='assistant')window.THIGASChatFormat.render(content,item.text);
+ else content.textContent=item.text;
+ body.append(content);
  if(item.notice){const note=document.createElement('div');note.style.color='#8b6541';note.style.fontSize='12px';note.textContent=item.notice;body.append(note)}
  if(item.role==='assistant'){
   const sources=safeSources(item.sources);
@@ -447,7 +470,7 @@ function renderMessage(item){
    sources.forEach((s,i)=>{const a=document.createElement('a');a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';a.textContent='['+(i+1)+'] '+s.titulo;panel.append(a)});body.append(panel);
   }
   const actions=document.createElement('div');actions.className='message-tools';const copy=document.createElement('button');
-  copy.type='button';copy.textContent='Copiar';copy.onclick=async()=>{try{await navigator.clipboard.writeText(item.text);announce('Resposta copiada.')}catch(_){announce('Não foi possível copiar.')}};actions.append(copy);body.append(actions);
+  copy.type='button';copy.textContent='Copiar';copy.onclick=async()=>{try{await navigator.clipboard.writeText(window.THIGASChatFormat.toPlainText(item.text));announce('Resposta copiada sem marcadores de formatação.')}catch(_){announce('Não foi possível copiar.')}};actions.append(copy);body.append(actions);
  }
  article.append(body);chat.append(article);jump();return article;
 }
