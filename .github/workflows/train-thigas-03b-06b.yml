@@ -56,7 +56,7 @@ jobs:
           git clone --depth 1 https://github.com/ggml-org/llama.cpp /tmp/thigas-llama
           python -m pip install /tmp/thigas-llama/gguf-py
           cmake -S /tmp/thigas-llama -B /tmp/thigas-llama/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF -DLLAMA_BUILD_EXAMPLES=OFF -DLLAMA_CURL=OFF
-          cmake --build /tmp/thigas-llama/build -j 4 --target llama-quantize llama-cli
+          cmake --build /tmp/thigas-llama/build -j 4 --target llama-quantize llama-server
       - name: Converter pesos fundidos e quantizar Q4_K_M
         run: |
           python /tmp/thigas-llama/convert_hf_to_gguf.py "./build_models/${{ matrix.variant }}/merged" \
@@ -88,19 +88,60 @@ jobs:
             ${{ matrix.artifact }}
             train_report_${{ matrix.variant }}.json
           retention-days: 30
-      - name: Testar carregamento e geração reais pelo llama.cpp
+      - name: Provar inferência real via llama-server HTTP API e janela completa
         run: |
-          set +e
-          timeout 150 /tmp/thigas-llama/build/bin/llama-cli \
-             -m "${{ matrix.artifact }}" \
-             -c "${{ matrix.context }}" -n 48 \
-             -p "Explique em português o que é uma variável em Python." \
-             -no-cnv --temp 0.3 > "amostra_${{ matrix.variant }}.txt" 2>&1
-          result=$?
-          set -e
-          echo "Resultado llama-cli: $result"
-          tail -n 120 "amostra_${{ matrix.variant }}.txt"
-          exit "$result"
+          set -euo pipefail
+          /tmp/thigas-llama/build/bin/llama-server \
+            -m "${{ matrix.artifact }}" -c "${{ matrix.context }}" \
+            --host 127.0.0.1 --port 18735 --api-key chave-de-teste-123456 \
+            --alias "THIGAS_AI_${{ matrix.variant }}" \
+            > "./servidor_${{ matrix.variant }}.log" 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          if python - <<'PY'
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+          from pathlib import Path
+          url='http://127.0.0.1:18735'
+          headers={'Authorization':'Bearer chave-de-teste-123456'}
+          for i in range(120):
+              try:
+                  req=urllib.request.Request(url+'/health',headers=headers)
+                  with urllib.request.urlopen(req,timeout=2) as response:
+                      health=json.loads(response.read())
+                  if health.get('status')=='ok' or health.get('status')=='no slot available':
+                      break
+              except (urllib.error.URLError,TimeoutError,ValueError):
+                  pass
+              time.sleep(1)
+          else:
+              raise RuntimeError('llama-server não iniciou ou não respondeu a /health')
+          data={'model':'THIGAS_AI_${{ matrix.variant }}',
+                'messages':[{'role':'system','content':'Você é THIGAS AI. Responda em português do Brasil.'},
+                            {'role':'user','content':'Explique em uma frase o que é Python. /no_think'}],
+                'temperature':0.2,'max_tokens':72,'stream':False}
+          req=urllib.request.Request(
+              url+'/v1/chat/completions',
+              data=json.dumps(data).encode('utf-8'),
+              headers={**headers,'Content-Type':'application/json'},
+              method='POST')
+          with urllib.request.urlopen(req,timeout=150) as response:
+              payload=json.load(response)
+          choice=payload['choices'][0]
+          result=str(choice['message'].get('content') or '').strip()
+          if not result:
+              raise RuntimeError('API respondeu sem texto: '+json.dumps(payload)[:600])
+          Path('amostra_${{ matrix.variant }}.txt').write_text(result,encoding='utf8')
+          print('Carregou GGUF, inferiu pelo OpenAI chat/completions, resposta:',result[:400])
+          PY
+          then
+            echo "Teste HTTP concluído com sucesso, contexto ${{ matrix.context }} tokens"
+          else
+            tail -n 120 "./servidor_${{ matrix.variant }}.log" || true
+            exit 1
+          fi
       - name: Publicar modelo GGUF treinado na Release
         env:
           GH_TOKEN: ${{ github.token }}
