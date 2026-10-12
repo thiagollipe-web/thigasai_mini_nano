@@ -48,6 +48,13 @@ class BrowserGGUFTests(unittest.TestCase):
         with self.get('/assets/wllama/esm/wasm/wllama.wasm') as response:
             self.assertIn('application/wasm',response.headers['Content-Type'])
 
+    def test_wasm_csp_allows_wasm_but_not_javascript_eval(self):
+        with self.get('/') as response:
+            csp=response.headers['Content-Security-Policy']
+        self.assertIn("'wasm-unsafe-eval'", csp)
+        self.assertNotIn("'unsafe-eval'", csp)
+        self.assertIn("worker-src 'self' blob:",csp)
+
     def test_unknown_static_path_is_not_exposed(self):
         for path in ('/assets/wllama/esm/../../web_cloud.py','/assets/wllama/esm/.env'):
             with self.assertRaises(error.HTTPError) as raised:
