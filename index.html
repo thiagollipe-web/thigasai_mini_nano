@@ -156,6 +156,12 @@
 #local-runtime .runtime-indicator{font-weight:800;color:#365334}
 #local-runtime button{background:#e0e7d6;border:0;border-radius:9px;padding:6px 10px;font-size:12px}
 #local-runtime button:hover{background:#d4dec9}
+.popup a.model-download{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);padding:9px 10px;border-radius:11px;font-size:13px}
+.popup a.model-download:hover,.popup a.model-download:focus-visible{background:#f0f2ea}
+.popup a.model-download .sym{display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#e8ece1}
+.popup a.model-download small{display:block;font-size:11px;color:var(--muted)}
+.local-model-note{font-size:11px;line-height:1.45;color:var(--muted);padding:8px 10px 5px;border-top:1px solid var(--line)}
+
 </style>
 </head>
 <body>
@@ -220,7 +226,10 @@
       <button id="plus" type="button" class="tool icon-only" aria-label="Mais ferramentas" aria-expanded="false" aria-controls="plus-popup">＋</button>
       <div id="plus-popup" class="popup" hidden>
        <div class="popup-title">Adicionar à conversa</div>
-       <button type="button" data-tool="gguf"><span class="sym">▣</span><span>Executar meu modelo GGUF<small>Carregar Nano ou Mini no navegador (Windows)</small></span></button>
+       <button type="button" data-tool="gguf"><span class="sym">▣</span><span>Usar GGUF neste dispositivo<small>Selecione o Nano 0.3B ou Mini 0.6B baixado</small></span></button>
+       <a class="model-download" href="https://github.com/thiagollipe-web/thigasai_mini_nano/releases/download/thigas-nano-03b-v1/THIGAS_AI_nano_03B_Q4_K_M.gguf" target="_blank" rel="noopener noreferrer" aria-label="Baixar modelo THIGAS Nano 0.3B (270,6 MB)"><span class="sym">↓</span><span>Baixar THIGAS Nano 0.3B<small>270,6 MB · 2.048 tokens</small></span></a>
+       <a class="model-download" href="https://github.com/thiagollipe-web/thigasai_mini_nano/releases/download/thigas-mini-06b-v1/THIGAS_AI_mini_06B_Q4_K_M.gguf" target="_blank" rel="noopener noreferrer" aria-label="Baixar modelo THIGAS Mini 0.6B (396,7 MB)"><span class="sym">↓</span><span>Baixar THIGAS Mini 0.6B<small>396,7 MB · 4.096 tokens</small></span></a>
+       <div class="local-model-note">Após baixar, selecione «Usar GGUF neste dispositivo». O navegador precisa de memória disponível; modelos não ficam carregados após fechar a página.</div>
        <button type="button" data-tool="documento"><span class="sym">▤</span><span>Enviar arquivo<small>PDF, DOCX, TXT, MD ou CSV</small></span></button>
        <button type="button" data-tool="imagem"><span class="sym">▧</span><span>Enviar imagem<small>PNG ou JPEG — leitura de texto (OCR)</small></span></button>
        <button type="button" data-tool="site"><span class="sym">↗</span><span>Analisar site<small>Extrair conteúdo de uma página HTTPS</small></span></button>
@@ -626,6 +635,7 @@ const menuEntries=[
  {key:'@arquivo',title:'Documento',desc:'Abrir seletor de arquivo',type:'documento'},
  {key:'@imagem',title:'Imagem',desc:'Anexar PNG ou JPEG para OCR',type:'imagem'},
  {key:'@site',title:'Site',desc:'Ler uma página pública HTTPS',type:'site'},
+ {key:'@modelo',title:'Modelo GGUF',desc:'Usar Nano ou Mini no navegador',type:'gguf'},
  {key:'/resumir',title:'Resumir',desc:'Criar resumo do texto ou anexo',type:'insert',insert:'Resuma com clareza e destaque os pontos principais: '},
  {key:'/explicar',title:'Explicar',desc:'Dar uma explicação didática',type:'insert',insert:'Explique de maneira didática, com exemplos: '},
  {key:'/pesquisar',title:'Pesquisar',desc:'Consultar a Wikipédia',type:'search',insert:'Pesquise na Wikipédia e cite as fontes: '},
@@ -664,7 +674,7 @@ function applyQuick(entry){
  const initial=input.value,head=initial.slice(0,t.start),tail=initial.slice(t.end);
  input.value=head+(entry.insert||'')+tail;hideQuick();resize();
  if(entry.type==='wikipedia'){state.wiki=true;updateWiki();if(state.activeChatId)persistCurrent();announce('Wikipédia ativada.')}
- else if(entry.type==='documento'||entry.type==='imagem'||entry.type==='site'){chooseTool(entry.type)}
+ else if(entry.type==='documento'||entry.type==='imagem'||entry.type==='site'||entry.type==='gguf'){chooseTool(entry.type)}
  else if(entry.type==='search'){state.wiki=true;updateWiki();if(state.activeChatId)persistCurrent()}
  else if(entry.type==='clear'){newChat();return}
  else if(entry.type==='help'){announce('Use @wikipedia, @arquivo, @imagem, @site e /resumir, /explicar, /pesquisar, /codigo, /limpar.',7800)}
