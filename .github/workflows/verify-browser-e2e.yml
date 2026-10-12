@@ -1,0 +1,72 @@
+name: Teste real GGUF no navegador PWA
+on:
+  push:
+    branches: [train-thigas-03b-06b]
+    paths:
+      - "tests/browser_gguf_e2e.cjs"
+      - ".github/workflows/verify-browser-e2e.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      THIGAS_CLOUD_MODE: "1"
+      THIGAS_SITE_PASSWORD: "senha-de-testes-segura"
+      MARITACA_API_KEY: "simulado-nao-consumir"
+      PORT: "18017"
+      NANO_PATH: "/tmp/THIGAS_AI_nano_03B_Q4_K_M.gguf"
+      MINI_PATH: "/tmp/THIGAS_AI_mini_06B_Q4_K_M.gguf"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preparar leitor e navegador Chromium
+        run: |
+          python -m pip install -r requirements.txt
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Baixar dois pesos reais e verificar SHA-256
+        run: |
+          curl --fail --location --retry 3 \
+            "https://github.com/thiagollipe-web/thigasai_mini_nano/releases/download/thigas-nano-03b-v1/THIGAS_AI_nano_03B_Q4_K_M.gguf" \
+            -o "$NANO_PATH"
+          curl --fail --location --retry 3 \
+            "https://github.com/thiagollipe-web/thigasai_mini_nano/releases/download/thigas-mini-06b-v1/THIGAS_AI_mini_06B_Q4_K_M.gguf" \
+            -o "$MINI_PATH"
+          printf '90c098e8315f68aaa9643846f1d801269b693fe4b63e709bdfc6d83f66e605df  %s\n' "$NANO_PATH" | sha256sum -c -
+          printf '8f1c72ec47144b135114e1ab48d6d92bfdc9ffa5e99672842d9d69cd3cbaffc0  %s\n' "$MINI_PATH" | sha256sum -c -
+      - name: Executar site sem API real e testar dois modelos no browser
+        run: |
+          python web_cloud.py > /tmp/thigas-e2e-server.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          python - <<'PY'
+          import urllib.request,time
+          for i in range(100):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:18017/health',timeout=2) as r:
+                      if r.status==200:
+                          break
+              except Exception:
+                  pass
+              time.sleep(.3)
+          else:
+              raise SystemExit('Backend não iniciou')
+          PY
+          node tests/browser_gguf_e2e.cjs
+      - name: Capturar diagnóstico do navegador em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-e2e-failure
+          path: |
+            browser-failure.png
+            /tmp/thigas-e2e-server.log
+          retention-days: 7
