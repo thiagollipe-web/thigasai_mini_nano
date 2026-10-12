@@ -48,7 +48,7 @@ test('##, ** e *** tornam-se títulos, destaques e separadores, não texto cru',
  format.render(container,text);
  assert.equal(elements(container,'h3')[0].textContent,'Título principal');
  assert.equal(elements(container,'h4')[0].textContent,'Orientações');
- assert.equal(elements(container,'strong').length,3);
+ assert.equal(elements(container,'strong').length,4); // Inclui o destaque dentro da lista.
  assert.equal(elements(container,'hr').length,1);
  assert.equal(elements(container,'ul').length,1);
  const output=plain(container);
