@@ -16,13 +16,15 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, parse_qs
 
 from thigas_wiki import THIGASError, ler_config, conversa, api_chat, validar_url, wikipedia, contexto_de_fontes
 from site_tools import ContextError, documento, site, validar_contexto
 
 BASE = Path(__file__).resolve().parent
 INDEX = (BASE / 'index.html').read_bytes()
+LOCAL_GGUF_JS = (BASE / 'local_gguf.js').read_bytes()
+WLLAMA_ROOT = (BASE / 'assets' / 'wllama' / 'esm').resolve()
 HISTORY_JS = (BASE / 'history_store.js').read_bytes()
 CAPIVARA = (BASE / 'assets' / 'capivara.svg').read_bytes()
 # Somente recursos estáticos públicos podem ser guardados offline.
@@ -205,17 +207,20 @@ def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict, contexto: str
 
 
 class Handler(BaseHTTPRequestHandler):
-    def send_body(self, status: int, body, mime='application/json; charset=utf-8') -> None:
+    def send_body(self, status: int, body, mime='application/json; charset=utf-8', cache_public=False) -> None:
         if isinstance(body, (dict, list)):
             body = json.dumps(body, ensure_ascii=False).encode('utf-8')
         self.send_response(status)
         self.send_header('Content-Type', mime)
         self.send_header('Content-Length', str(len(body)))
-        self.send_header('Cache-Control', 'no-store')
+        self.send_header('Cache-Control', 'public, max-age=31536000, immutable' if cache_public else 'no-store')
         self.send_header('X-Content-Type-Options', 'nosniff')
         self.send_header('X-Frame-Options', 'DENY')
+        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+        self.send_header('Cross-Origin-Resource-Policy', 'same-origin')
         self.send_header('Referrer-Policy', 'no-referrer')
-        self.send_header('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; form-action 'none'")
+        self.send_header('Content-Security-Policy', "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; form-action 'none'")
         self.end_headers()
         self.wfile.write(body)
 
@@ -253,6 +258,36 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_body(200, resource, mime)
         if not self.authorized():
             return self.ask_login()
+        if path == '/local_gguf.js':
+            return self.send_body(200, LOCAL_GGUF_JS, 'text/javascript; charset=utf-8')
+        if path.startswith('/assets/wllama/esm/'):
+            item = path[len('/assets/wllama/esm/'):]
+            target = (WLLAMA_ROOT / item).resolve()
+            if not target.is_relative_to(WLLAMA_ROOT) or not target.is_file():
+                return self.send_body(404, {'erro': 'Arquivo não encontrado.'})
+            mimetypes = {'.js': 'text/javascript; charset=utf-8',
+                         '.mjs': 'text/javascript; charset=utf-8',
+                         '.wasm': 'application/wasm'}
+            mime = mimetypes.get(target.suffix)
+            if not mime or target.stat().st_size > 60_000_000:
+                return self.send_body(404, {'erro': 'Recurso não permitido.'})
+            return self.send_body(200, target.read_bytes(), mime, cache_public=True)
+        if path == '/api/wiki':
+            queries = parse_qs(urlsplit(self.path).query)
+            term = (queries.get('q') or [''])[0].strip()
+            if not term or len(term) > 220:
+                return self.send_body(400, {'erro': 'Consulta inválida.'})
+            with RATE_LOCK:
+                now = time.monotonic()
+                TOOL_TIMES[:] = [t for t in TOOL_TIMES if now-t < 3600]
+                if len(TOOL_TIMES) >= 20:
+                    return self.send_body(429, {'erro': 'Limite de consultas atingido.'})
+                TOOL_TIMES.append(now)
+            try:
+                contato = str(ler_config().get('contato_wikipedia', ''))
+                return self.send_body(200, {'fontes': wikipedia(term, contato=contato)})
+            except THIGASError:
+                return self.send_body(502, {'erro': 'Wikipédia indisponível agora.'})
         if path in ('/', '/index.html', '/mini', '/nano'):
             return self.send_body(200, INDEX, 'text/html; charset=utf-8')
         if path == '/history_store.js':
