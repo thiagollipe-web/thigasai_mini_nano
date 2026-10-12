@@ -2,6 +2,8 @@ name: Verificar THIGAS AI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -32,3 +34,7 @@ jobs:
           node --check /tmp/thigas-check.js
       - name: Testar persistência do histórico local
         run: node --test tests/history.test.js
+      - name: Testar formatação segura das respostas
+        run: |
+          node --check chat_format.js
+          node --test tests/chat_format.test.js
