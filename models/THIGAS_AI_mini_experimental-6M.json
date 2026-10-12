@@ -1,0 +1,20 @@
+{
+  "nome": "THIGAS AI mini EXPERIMENTAL 6M",
+  "treinamento": "novo, a partir de pesos aleatórios; NÃO é o Mini anterior de Termux/Colab",
+  "base": "nanoGPT (MIT), arquitetura GPT-2",
+  "parametros": 6105888,
+  "blocos": 6,
+  "dimensao_embedding": 288,
+  "cabecas": 6,
+  "contexto": 128,
+  "vocabulario": 257,
+  "iteracoes": 250,
+  "tokens_de_treino": 141134,
+  "loss_validacao_inicial": 5.52198,
+  "loss_validacao_final": 1.576916,
+  "sha256_corpus": "123aa07d7a52b049cf85585999bd9483c2ee57266b431fe778bfd23fd9a05b70",
+  "arquivo_gguf": "THIGAS_AI_mini_experimental-6M-F16.gguf",
+  "bytes_gguf": 12266528,
+  "sha256_gguf": "84dcf8b9e24c2d812e7a1f10ddb14b3867f9abca4ad1f2448514b7708ef52992",
+  "limitacoes": "Exemplo técnico sobre textos pequenos e repetidos; não serve para conversa coerente."
+}
