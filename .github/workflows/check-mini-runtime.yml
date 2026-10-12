@@ -1,0 +1,38 @@
+name: Testar Mini GGUF no llama.cpp
+on:
+  push:
+    branches: [experimental-mini-gguf]
+    paths:
+      - '.github/workflows/check-mini-runtime.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar compilador e cmake
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq cmake g++ make
+      - name: Compilar llama.cpp CPU
+        run: |
+          git clone --depth=1 https://github.com/ggml-org/llama.cpp.git /tmp/llama.cpp
+          cmake -S /tmp/llama.cpp -B /tmp/llama-build \
+            -DLLAMA_CURL=OFF -DGGML_NATIVE=OFF -DLLAMA_BUILD_TESTS=OFF \
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/llama-build -j 2 --target llama-cli
+      - name: Carregar GGUF e gerar amostra
+        run: |
+          set -o pipefail
+          test -s models/THIGAS_AI_mini_experimental-6M-F16.gguf
+          timeout 90 /tmp/llama-build/bin/llama-cli \
+            -m models/THIGAS_AI_mini_experimental-6M-F16.gguf \
+            -p "A educacao e a tecnologia" -n 16 -c 128 -t 2 -st 2>&1 | tee /tmp/thigas-mini-llama.log
+          if grep -Ei 'failed to load model|invalid gguf|error loading model|fatal error' /tmp/thigas-mini-llama.log; then
+            echo 'Falha no carregamento GGUF'
+            exit 1
+          fi
+          echo 'GGUF THIGAS AI mini carregado e testado no llama.cpp'
