@@ -41,7 +41,7 @@ class HTTPCloudRotationTests(unittest.TestCase):
         url=f"http://127.0.0.1:{self.server.server_port}/api/chat"
         req=request.Request(
             url,data=body,method="POST",
-            headers={"Content-Type":"application/json"},timeout=20
+            headers={"Content-Type":"application/json"}
         )
         with request.urlopen(req,timeout=20) as response:
             return json.load(response)
