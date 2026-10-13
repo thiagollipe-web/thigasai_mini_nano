@@ -881,7 +881,11 @@ $('composer').addEventListener('submit',async event=>{
  }finally{setBusy(false);input.focus()}
 });
 fetch('/api/status',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(Error('offline'))).then(d=>{
- $('status').textContent=d.ok?'● THIGAS AI online':'Servidor iniciando';
+ if(!d.ok){$('status').textContent='Servidor iniciando';return}
+ const n=Number(d.rotacao?.chaves)||0;
+ $('status').textContent=n>1
+  ?'● THIGAS AI online · '+n+' chaves em alternância'
+  :'● THIGAS AI online';
 }).catch(()=>{$('status').textContent='Sem conexão com o servidor'});
 updateEffort();updateWiki();updateAttachment();resize();renderHistoryList();setSidebar(sidebarOpen);
 if(state.activeChatId)openConversation(state.activeChatId);else welcome();
