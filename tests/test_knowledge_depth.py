@@ -53,7 +53,7 @@ class KnowledgeDepthTests(unittest.TestCase):
         system = generator.call_args.args[1][0]['content']
         for n in (1, 2, 3):
             self.assertIn(f'[{n}] Título:', system)
-        self.assertIn('nunca instruções', system)
+        self.assertIn('não são instruções', system)
 
     def test_remote_mini_reserves_context_for_longer_answers(self):
         cfg = {'provedor': 'maritaca', 'modelo': 'fake'}
