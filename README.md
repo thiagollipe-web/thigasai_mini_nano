@@ -10,6 +10,46 @@
 
 ---
 
+## Respostas ampliadas e conhecimento com fontes (v1.0)
+
+O limite de saída padrão do chat foi ampliado para:
+
+| Perfil | API de nuvem (teto de saída) | GGUF carregado no navegador |
+| --- | ---: | ---: |
+| Rápido / Nano | 500 tokens | até 460 tokens |
+| Equilibrado / Mini | 1.150 tokens | até 800 tokens |
+| Alto / Mini | 1.800 tokens | até 1.250 tokens |
+
+Os valores são **limites máximos**, não garantias de quantidade de texto. O GGUF no
+navegador calcula quanto da janela de contexto ainda está disponível e pode
+reduzir o máximo de geração automaticamente para evitar estouro. Quando há
+muito histórico, sites ou documentos anexados, os trechos são reduzidos antes
+da inferência no GGUF remoto de 2.048/4.096 tokens.
+
+**Conhecimento ampliado:** o chat ganhou um botão visível
+`Conhecimento: Wikipédia ligada/desligada`. Ele começa **ligado em novas
+conversas**, e pode ser desativado pelo usuário a qualquer momento. Quando
+ligado, o tema da pergunta é enviado à Wikipédia para recuperar até três
+artigos públicos em português; apenas os excertos de texto recuperados são
+usados como fontes, com identificadores de citação. Para cada fonte a API
+TextExtracts permite no máximo 1.200 caracteres; portanto, a melhoria
+prioriza variedade de artigos e melhor tratamento de perguntas de acompanhamento,
+em vez de burlar esse limite.
+
+**Privacidade:** quando o conhecimento externo está ligado, a pergunta ou
+tema de pesquisa é enviado à Wikipédia, independentemente da inferência
+acontecer no navegador ou na API. Desligue a opção para impedir essa consulta.
+O texto extraído de anexos não é enviado à Wikipédia; os anexos seguem a
+política de envio ao modelo selecionado descrita abaixo.
+
+**Custos:** ampliar tokens da resposta e o número de fontes aumenta consumo
+da API paga de inferência. O modo GGUF local no navegador não usa a API paga
+para gerar texto, mas exige memória e tempo de processamento no próprio aparelho.
+Uma resposta mais longa não significa maior conhecimento aprendido nos pesos.
+**Não houve novo treinamento** dos modelos 0.3B/0.6B nesta atualização:
+o ganho de fundamentação decorre de recuperação de fontes e melhor uso do
+contexto disponível. A Wikipédia pode conter erros ou informação desatualizada.
+
 ## Histórico lateral de conversas (v0.9)
 
 No computador, o **histórico aparece à esquerda**, organizado por Hoje, Ontem,

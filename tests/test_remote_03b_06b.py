@@ -49,7 +49,7 @@ class RemoteBackendTests(unittest.TestCase):
             mini_conversa('Oi',[],cloud,esforco='alto')
             config=chat.call_args.args[0]
             self.assertEqual(config['modelo'],'THIGAS_AI_mini_06B')
-            self.assertEqual(config['max_tokens'],1500)
+            self.assertEqual(config['max_tokens'],1600)
             mini_conversa('Leia',[],cloud,imagem={'data_url':'data:image/png;base64,AAAA'},esforco='equilibrado')
             self.assertEqual(chat.call_args.args[0]['modelo'],'sabiazinho-4-br-sp')
 
