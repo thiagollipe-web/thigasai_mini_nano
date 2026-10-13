@@ -11,6 +11,8 @@ services:
         value: "1"
       - key: MARITACA_MODEL
         value: sabiazinho-4-br-sp
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b
       - key: THIGAS_SITE_USER
         value: thigas
       - key: THIGAS_MAX_REQUESTS_HOUR
@@ -20,6 +22,8 @@ services:
       - key: THIGAS_MINI_MAX_TOKENS
         value: "1150"
       - key: MARITACA_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
         sync: false
       - key: THIGAS_SITE_PASSWORD
         sync: false

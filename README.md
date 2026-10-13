@@ -10,6 +10,58 @@
 
 ---
 
+## Rodízio automático de chaves Maritaca/Groq (v1.1)
+
+O site utiliza rotas separadas de fornecedores, sem credenciais no navegador.
+O backend enumera as variáveis de ambiente que tiverem **nome compatível**:
+
+| Fornecedor | Variáveis aceitas |
+|---|---|
+| Maritaca | `MARITACA_API_KEY`, `MARITACA_API_KEY_2`, `MARITACA_API_KEY_3`, etc. |
+| Groq | `GROQ_API_KEY`, `GROQ_API_KEY_2`, `GROQ_API_KEY_3`, etc. |
+
+Também aceita `GROQ_API_KEY2`, `GROQ_API_KEY_BACKUP`, e variáveis
+`GROQ_API_KEYS` / `MARITACA_API_KEYS` com lista JSON ou separada por vírgula.
+Chaves repetidas são deduplicadas. Nunca inclua chaves reais em commits.
+
+**Rodízio:** cada solicitação textual alterna Maritaca/Groq quando ambos estão
+disponíveis; dentro de cada fornecedor, as chaves também são alternadas.
+Exemplo: uma chave Maritaca + duas Groq resultam em
+Maritaca A → Groq A → Maritaca A → Groq B → ...
+Se só houver Groq, as chamadas alternam entre as chaves Groq.
+
+**Modelo Groq padrão:** `openai/gpt-oss-20b`, com
+`GROQ_MODEL` configurável no Render. Ele substitui identificadores Llama 3.1
+e 3.3 descontinuados nos planos Free e Developer. Groq GPT-OSS utiliza
+`max_completion_tokens`, e a configuração oculta o raciocínio interno da
+resposta. A pesquisa na Wikipédia permanece independente da rotação.
+
+**Falhas:** no HTTP 401 uma credencial entra em suspensão temporária. HTTP
+429 suspende temporariamente o provedor, sem tentar driblar cotas com outra
+chave da mesma organização. Erros 400/402/403/5xx podem provocar fallback a
+outro provedor configurado. Erros na resposta HTTP 200 não são repetidos para
+evitar cobrança duplicada. Não existe promessa de disponibilidade infinita.
+
+**OCR de imagens:** continua restrito à Maritaca na configuração atual. O
+modelo Groq textual não é tratado como se tivesse visão/OCR. Se apenas Groq
+estiver configurado, perguntas textuais funcionam mas anexos de imagem
+exigem configurar o serviço OCR.
+
+**Como verificar:** após deploy, os logs de inicialização mostram somente o
+número de credenciais e provedores detectados. A rota autenticada
+`/api/status` retorna `rotacao.ativa`, `rotacao.chaves` e a lista de
+provedores, sem nomes de variáveis nem seus valores. O chat informa apenas
+quantas chaves estão disponíveis. Para conferir que cada chave autentica
+de verdade, execute requisições reais de teste à API; isso pode consumir
+cota ou créditos.
+
+**Limites e custos:** as cotas do Groq podem ser compartilhadas entre todas
+as chaves de uma organização. `THIGAS_MAX_REQUESTS_HOUR` continua sendo um
+limite de perguntas do serviço inteiro (atualmente 20/h), não por chave.
+Alternar provedores significa que algumas respostas usam modelos diferentes
+e poderão apresentar variações de qualidade e custo.
+
+
 ## Respostas ampliadas e conhecimento com fontes (v1.0)
 
 O limite de saída padrão do chat foi ampliado para:
