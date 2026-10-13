@@ -31,12 +31,27 @@
   info={name,kind,context:ctx,bytes:file.size};
   return {...info};
  }
+ // Seleciona teto de saída com reserva de contexto: contar caracteres
+ // não substitui o tokenizador real, mas é uma estimativa conservadora.
+ function planGeneration(messages, effort='equilibrado', context=2048){
+  if(!Array.isArray(messages)||!messages.length||
+     messages.some(m=>!m||typeof m.content!=='string'))
+   throw Error('Mensagens inválidas.');
+  const maxCtx=Math.max(256,Math.min(32768,Number(context)||2048));
+  const desired=effort==='rapido'?460:effort==='alto'?1250:800;
+  const chars=messages.reduce((sum,m)=>sum+m.content.length,0);
+  const approximateInput=Math.ceil(chars/2.5)+messages.length*20+80;
+  // Uma entrada volumosa precisa de um teto menor ou de resumo antes da geração.
+  const room=maxCtx-approximateInput-96;
+  if(room<96)
+   throw Error('O conteúdo supera a janela de contexto do GGUF. Reduza o histórico ou anexo e tente novamente.');
+  return Math.max(96,Math.min(desired,room));
+ }
  async function chat(messages,{effort='equilibrado'}={}){
   if(!llm||!info)throw Error('Carregue primeiro um GGUF no botão +.');
-  if(!Array.isArray(messages)||!messages.length)throw Error('Mensagens inválidas.');
-  const max_tokens=effort==='rapido'?240:effort==='alto'?850:480;
+  const max_tokens=planGeneration(messages,effort,info.context);
   const result=await llm.createChatCompletion({
-   messages,max_tokens,temperature:effort==='rapido'?0.25:0.45,
+   messages,max_tokens,temperature:effort==='rapido'?0.25:0.4,
    stream:false,chat_template_kwargs:{enable_thinking:false}
   });
   const choice=result?.choices?.[0];
@@ -50,5 +65,5 @@
   if(old){try{await old.exit()}catch(_){}}
  }
  function getInfo(){return info?{...info}:null}
- root.THIGASBrowserGGUF={load,chat,unload,getInfo,hasModel:()=>!!llm};
+ root.THIGASBrowserGGUF={load,chat,unload,getInfo,planGeneration,hasModel:()=>!!llm};
 })(globalThis);
