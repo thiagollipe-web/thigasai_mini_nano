@@ -15,6 +15,10 @@ services:
         value: thigas
       - key: THIGAS_MAX_REQUESTS_HOUR
         value: "20"
+      - key: THIGAS_NANO_MAX_TOKENS
+        value: "500"
+      - key: THIGAS_MINI_MAX_TOKENS
+        value: "1150"
       - key: MARITACA_API_KEY
         sync: false
       - key: THIGAS_SITE_PASSWORD

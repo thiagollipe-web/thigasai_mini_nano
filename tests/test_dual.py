@@ -123,7 +123,7 @@ class DualModeTests(unittest.TestCase):
             self.assertEqual(out['resposta'],'Olá')
             self.assertEqual(out['modo'], 'mini')
             self.assertNotIn('motor', out)
-            self.assertEqual(api.call_args.args[0]['max_tokens'], 520)
+            self.assertEqual(api.call_args.args[0]['max_tokens'], 1150)
             self.assertIn('respostas elaboradas', api.call_args.args[1][0]['content'])
             self.assertEqual(api.call_args.args[0]['modelo'],'sabiazinho-4-br-sp')
         with patch.dict(os.environ, {'THIGAS_MINI_UPSTREAM_URL':'https://exemplo.com/v1/chat/completions',
@@ -145,7 +145,7 @@ class DualModeTests(unittest.TestCase):
                 self.assertNotIn('motor',out)
             kwargs=nano.call_args
             self.assertEqual(kwargs.kwargs['buscar'],False)
-            self.assertEqual(kwargs.args[1]['max_tokens'],220)
+            self.assertEqual(kwargs.args[1]['max_tokens'],500)
             self.assertEqual(kwargs.args[1]['temperatura'],0.25)
 
 
