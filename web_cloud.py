@@ -190,6 +190,7 @@ def mini_conversa(pergunta: str, historico: list, cloud_cfg: dict, contexto: str
     else:
         cfg['max_tokens'] = min(2500, limite_mini + 650) if esforco == 'alto' else limite_mini
     cfg['temperatura'] = 0.35
+    cfg['esforco'] = esforco
     historico = historico if isinstance(historico, list) else []
     instrucao = MINI_SYSTEM
     if esforco == 'alto':
@@ -327,10 +328,17 @@ class Handler(BaseHTTPRequestHandler):
         if path == '/assets/capivara.svg':
             return self.send_body(200, CAPIVARA, 'image/svg+xml; charset=utf-8')
         if path == '/api/status':
+            from key_rotation import public_status
+            estado = public_status()
             return self.send_body(200, {
                 'ok': True, 'modos': ['nano', 'mini'],
                 'wikipedia': True,
                 'limites_saida': {'rapido': 500, 'equilibrado': 1150, 'alto': 1800},
+                'rotacao': {
+                    'ativa': estado['rotacao_ativa'],
+                    'chaves': estado['credenciais_configuradas'],
+                    'provedores': estado['provedores_ativos'],
+                },
             })
         return self.send_body(404, {'erro': 'Página não encontrada.'})
 
@@ -436,6 +444,7 @@ class Handler(BaseHTTPRequestHandler):
                     limite_nano = 500
                 cfg['max_tokens'] = max(120, min(750 if base_nano else 700, limite_nano))
                 cfg['temperatura'] = 0.25
+                cfg['esforco'] = 'rapido'
                 extra_nano = {'contexto': contexto} if contexto else {}
                 if imagem:
                     extra_nano['imagem'] = imagem
@@ -472,8 +481,16 @@ def main():
         raise SystemExit('PORT inválida.')
     if port < 1024 or port > 65535:
         raise SystemExit('PORT fora do intervalo permitido.')
+    from key_rotation import public_status
+    estatistica = public_status()
     server = ThreadingHTTPServer(('0.0.0.0', port), Handler)
     print(f'THIGAS mini + nano online na porta {port} | acesso protegido.', flush=True)
+    print(
+        'Rotação de APIs: {} credenciais detectadas; {} provedor(es) habilitado(s).'.format(
+            estatistica['credenciais_configuradas'],
+            len(estatistica['provedores_ativos'])
+        ), flush=True
+    )
     try:
         server.serve_forever()
     except KeyboardInterrupt:
