@@ -21,7 +21,7 @@ CONFIG_FILE = BASE / 'config.local.json'
 CACHE_DIR = BASE / '.cache' / 'wiki'
 WIKI_API = 'https://pt.wikipedia.org/w/api.php'
 MAX_CACHE_SECONDS = 12 * 3600
-DEFAULT_UA = 'THIGAS-AI-nano-Wiki/0.3 (projeto educacional; configure contato no configurar.py)'
+DEFAULT_UA = 'THIGAS-AI/1.0 (https://github.com/thiagollipe-web/thigasai_mini_nano; pesquisa educacional)'
 SYSTEM = ("Você é o THIGAS nano, perfil de respostas diretas do projeto THIGAS AI. "
           "Responda em português brasileiro com precisão, clareza e conteúdo suficiente para "
           "realmente esclarecer a pergunta. Não se limite a duas ou três frases: para perguntas "
@@ -147,7 +147,7 @@ def wikipedia(pergunta: str, *, contato: str = '', anterior: str = '',
         except (ValueError, OSError):
             pass
 
-    ua = 'THIGAS-AI-nano-Wiki/0.3 (projeto educacional'
+    ua = 'THIGAS-AI/1.0 (+https://github.com/thiagollipe-web/thigasai_mini_nano'
     if contato:
         ua += f'; contato: {contato[:100].replace(chr(10), " ").replace(chr(13), " ")}'
     ua += ')'
