@@ -1,0 +1,59 @@
+name: Testar conhecimento do chat no navegador
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tests/knowledge_browser_e2e.cjs"
+      - "index.html"
+      - ".github/workflows/verify-knowledge-browser.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      THIGAS_CLOUD_MODE: "1"
+      THIGAS_SITE_PASSWORD: "senha-de-testes-segura"
+      MARITACA_API_KEY: "falso-sem-consumo"
+      PORT: "18023"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Preparar navegador Chromium
+        run: |
+          python -m pip install -r requirements.txt
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verificar interface, preferência e envio de consulta com API simulada
+        run: |
+          python web_cloud.py > /tmp/thigas-knowledge-server.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          python - <<'PY'
+          import urllib.request,time
+          for attempt in range(100):
+              try:
+                  with urllib.request.urlopen('http://127.0.0.1:18023/health',timeout=2) as resp:
+                      if resp.status==200:break
+              except Exception:pass
+              time.sleep(.2)
+          else:
+              raise SystemExit('Servidor não iniciou')
+          PY
+          node tests/knowledge_browser_e2e.cjs
+      - name: Capturar diagnóstico visual
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: knowledge-browser-failure
+          path: |
+            knowledge-browser-failure.png
+            /tmp/thigas-knowledge-server.log
+          retention-days: 7
