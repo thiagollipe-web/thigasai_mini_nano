@@ -105,39 +105,41 @@ def public_status(env: Mapping[str, str] | None = None) -> dict[str, object]:
     }
 
 
-def _choose_candidates(*, image: bool) -> list[Credential]:
-    """Distribuição justa entre provedores e, dentro deles, entre chaves."""
+def _choose_candidates(*, image: bool) -> tuple[list[str], dict[str, list[Credential]]]:
+    """Reserva a vez do provedor, mas ainda não contabiliza chaves sem uso."""
     global _PROVIDER_TURN
     groups = discover_credentials()
     enabled = [p for p in PROVIDERS if groups[p] and (not image or p == "maritaca")]
     if not enabled:
-        return []
+        return [], groups
     with _LOCK:
         turn = _PROVIDER_TURN % len(enabled)
         _PROVIDER_TURN += 1
         providers = enabled[turn:] + enabled[:turn]
-        ordered: dict[str, list[Credential]] = {}
-        for provider in providers:
-            secrets = groups[provider]
-            idx = _KEY_TURNS[provider] % len(secrets)
-            _KEY_TURNS[provider] += 1
-            ordered[provider] = secrets[idx:] + secrets[:idx]
-    # Primeira tentativa: uma chave de cada provedor.
-    # Somente após isso considerar outras chaves do mesmo provedor.
-    return [
-        ordered[p][index]
-        for index in range(max(len(ordered[p]) for p in providers))
-        for p in providers
-        if index < len(ordered[p])
-    ]
+    return providers, groups
 
 
-def _available(slot: Credential) -> bool:
+def _reserve_credential(provider: str, pool: list[Credential],
+                        visited: set[str]) -> Credential | None:
+    """Escolhe uma chave somente na hora de chamar a API.
+
+    O cursor avança apenas após reservar a chave, inclusive em concorrência.
+    """
     now = time.monotonic()
     with _LOCK:
-        return (now >= _PROVIDER_COOLDOWN.get(slot.provider, 0)
-                and now >= _KEY_COOLDOWN.get(slot.identifier, 0))
-
+        if now < _PROVIDER_COOLDOWN.get(provider, 0):
+            return None
+        first = _KEY_TURNS[provider] % len(pool)
+        for offset in range(len(pool)):
+            idx = (first + offset) % len(pool)
+            slot = pool[idx]
+            if slot.identifier in visited:
+                continue
+            if now < _KEY_COOLDOWN.get(slot.identifier, 0):
+                continue
+            _KEY_TURNS[provider] = idx + 1
+            return slot
+    return None
 
 def _cooldown(slot: Credential, *, provider: bool, seconds: float) -> None:
     until = time.monotonic() + max(1, min(900, seconds))
@@ -172,51 +174,54 @@ def rotate_chat(config: dict[str, Any], messages: list[dict[str, Any]],
         isinstance(m, dict) and isinstance(m.get("content"), list)
         for m in messages
     )
-    candidates = _choose_candidates(image=has_image)
-    if not candidates:
+    providers, groups = _choose_candidates(image=has_image)
+    if not providers:
         if has_image:
             raise THIGASError("Nenhum provedor configurado suporta OCR de imagem.")
         raise THIGASError("Nenhuma credencial de IA configurada no servidor.")
 
     attempted = 0
-    for slot in candidates:
-        if not _available(slot):
-            continue
-        attempted += 1
-        selected = dict(config)
-        selected["rotate_keys"] = False
-        selected["provedor"] = slot.provider
-        selected["api_key"] = slot.secret
-        if slot.provider == "groq":
-            selected["modelo"] = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b").strip() or "openai/gpt-oss-20b"
-        else:
-            selected["modelo"] = os.environ.get("MARITACA_MODEL", "sabiazinho-4-br-sp").strip() or "sabiazinho-4-br-sp"
-        try:
-            return single_chat(selected, messages)
-        except THIGASError as exc:
-            http_exc = _http_error(exc)
-            if http_exc is None:
-                # Um corpo 200 inválido pode já ter sido cobrado: não repetir.
-                # Uma falha de conexão também pode acontecer após o servidor responder.
+    visited: set[str] = set()
+    # A cada rodada, tenta no máximo uma chave de cada provedor. Uma chave
+    # reservada é contada somente se a chamada realmente for iniciada.
+    for _ in range(max(len(groups[p]) for p in providers)):
+        for provider in providers:
+            slot = _reserve_credential(provider, groups[provider], visited)
+            if slot is None:
+                continue
+            visited.add(slot.identifier)
+            attempted += 1
+            selected = dict(config)
+            selected["rotate_keys"] = False
+            selected["provedor"] = slot.provider
+            selected["api_key"] = slot.secret
+            if slot.provider == "groq":
+                selected["modelo"] = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b").strip() or "openai/gpt-oss-20b"
+            else:
+                selected["modelo"] = os.environ.get("MARITACA_MODEL", "sabiazinho-4-br-sp").strip() or "sabiazinho-4-br-sp"
+            try:
+                return single_chat(selected, messages)
+            except THIGASError as exc:
+                http_exc = _http_error(exc)
+                if http_exc is None:
+                    # Um HTTP 200 malformado pode já ter sido cobrado.
+                    # Sem status HTTP explícito, não repetimos a requisição.
+                    raise
+                status = http_exc.code
+                if status == 401:
+                    _cooldown(slot, provider=False, seconds=600)
+                    continue
+                if status == 429:
+                    # Limites por organização: não alternar só as chaves Groq.
+                    _cooldown(slot, provider=True, seconds=_retry_after(http_exc))
+                    continue
+                if status in (402, 403, 400, 404, 422):
+                    _cooldown(slot, provider=True, seconds=180)
+                    continue
+                if status in (408, 500, 502, 503, 504):
+                    _cooldown(slot, provider=True, seconds=20)
+                    continue
                 raise
-            status = http_exc.code
-            if status == 401:
-                _cooldown(slot, provider=False, seconds=600)
-                continue
-            if status == 429:
-                # Groq limita por organização, não por chave; outras chaves do
-                # mesmo provedor também entram em cooldown.
-                _cooldown(slot, provider=True, seconds=_retry_after(http_exc))
-                continue
-            if status in (402, 403, 400, 404, 422):
-                # Conta sem saldo, modelo indisponível, erro de permissão ou payload.
-                # Outra chave na mesma organização provavelmente não resolverá.
-                _cooldown(slot, provider=True, seconds=180)
-                continue
-            if status in (408, 500, 502, 503, 504):
-                _cooldown(slot, provider=True, seconds=20)
-                continue
-            raise
 
     if attempted == 0:
         raise THIGASError("Credenciais de IA temporariamente em espera.")
