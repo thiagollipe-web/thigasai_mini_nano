@@ -42,20 +42,30 @@ class THIGASError(RuntimeError):
 def ler_config() -> dict[str, Any]:
     """Termux: config.local.json; Render: variáveis de ambiente, sem arquivo de chave."""
     if os.environ.get('THIGAS_CLOUD_MODE') == '1':
-        chave = os.environ.get('MARITACA_API_KEY', '').strip()
-        if not chave:
-            raise THIGASError('MARITACA_API_KEY ausente nas variáveis de ambiente do serviço.')
-        modelo = os.environ.get('MARITACA_MODEL', 'sabiazinho-4-br-sp').strip()
+        # Descobre apenas os nomes convencionados de variáveis de ambiente.
+        # Nunca imprime as chaves, nem compartilha seus valores com o navegador.
+        from key_rotation import discover_credentials
+        available = discover_credentials()
+        if not any(available.values()):
+            raise THIGASError('Configure MARITACA_API_KEY ou GROQ_API_KEY no Render.')
+        provider = 'maritaca' if available['maritaca'] else 'groq'
+        chosen = available[provider][0]
+        modelo = (
+            os.environ.get('MARITACA_MODEL', 'sabiazinho-4-br-sp')
+            if provider == 'maritaca'
+            else os.environ.get('GROQ_MODEL', 'openai/gpt-oss-20b')
+        ).strip()
         if not modelo:
-            raise THIGASError('MARITACA_MODEL não pode ficar vazio.')
+            raise THIGASError('Modelo da API não configurado.')
         try:
             max_tokens = max(100, min(2600, int(os.environ.get('THIGAS_MAX_TOKENS', '1150'))))
         except ValueError:
             max_tokens = 1150
         return {
-            'provedor': 'maritaca',
+            'provedor': provider,
             'modelo': modelo,
-            'api_key': chave,
+            'api_key': chosen.secret,
+            'rotate_keys': True,
             'contato_wikipedia': os.environ.get('THIGAS_WIKI_CONTACT', '').strip()[:100],
             'temperatura': 0.35,
             'max_tokens': max_tokens,
@@ -205,10 +215,19 @@ def validar_url(endpoint: str) -> str:
     raise THIGASError('Por segurança, a URL da API precisa usar HTTPS (exceto localhost).')
 
 
-def api_chat(config: dict[str, Any], mensagens: list[dict[str, str]]) -> str:
+def api_chat(config: dict[str, Any], mensagens: list[dict[str, Any]]) -> str:
+    """Ponto único de entrada para roteamento e alternância de credenciais."""
+    if config.get('rotate_keys') is True and config.get('provedor') in ('maritaca', 'groq'):
+        from key_rotation import rotate_chat
+        return rotate_chat(config, mensagens, _api_chat_single)
+    return _api_chat_single(config, mensagens)
+
+
+def _api_chat_single(config: dict[str, Any], mensagens: list[dict[str, Any]]) -> str:
     provedor = config.get('provedor', 'local')
     modelo = str(config.get('modelo') or '')
-    chave = os.environ.get('THIGAS_API_KEY') or config.get('api_key', '')
+    # Uma chave selecionada pelo roteador tem precedência sobre configuração legada.
+    chave = config.get('api_key') or os.environ.get('THIGAS_API_KEY', '')
     temperatura = float(config.get('temperatura', 0.35))
     limite = int(config.get('max_tokens', 400))
     if not modelo:
@@ -240,7 +259,9 @@ def api_chat(config: dict[str, Any], mensagens: list[dict[str, str]]) -> str:
             raise THIGASError('Gemini não retornou texto (possível bloqueio de segurança ou resposta vazia).')
         return texto
 
-    if provedor == 'openrouter':
+    if provedor == 'groq':
+        url = 'https://api.groq.com/openai/v1/chat/completions'
+    elif provedor == 'openrouter':
         url = 'https://openrouter.ai/api/v1/chat/completions'
     elif provedor == 'openai':
         url = 'https://api.openai.com/v1/chat/completions'
@@ -261,6 +282,20 @@ def api_chat(config: dict[str, Any], mensagens: list[dict[str, str]]) -> str:
         cabecalhos['X-OpenRouter-Title'] = 'THIGAS AI nano Wikipedia'
     corpo = {'model': modelo, 'messages': mensagens, 'stream': False,
              'temperature': temperatura, 'max_tokens': limite}
+    if provedor == 'groq':
+        # Groq recomenda max_completion_tokens. Nos GPT-OSS ele inclui os tokens
+        # internos de raciocínio; reservamos espaço para a resposta final.
+        corpo.pop('max_tokens', None)
+        corpo['max_completion_tokens'] = (
+            min(3000, limite + 640) if modelo.startswith('openai/gpt-oss-')
+            else limite
+        )
+        if modelo.startswith('openai/gpt-oss-'):
+            # Não retornar raciocínio interno ao visitante do chat.
+            corpo['include_reasoning'] = False
+            corpo['reasoning_effort'] = (
+                'medium' if config.get('esforco') == 'alto' else 'low'
+            )
     resposta = http_json(url, data=corpo, headers=cabecalhos, timeout=110)
     try:
         conteudo = resposta['choices'][0]['message']['content']
