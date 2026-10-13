@@ -38,6 +38,7 @@ test('a interface mostra de forma transparente o modo Conhecimento opt-out',()=>
  assert.ok(html.includes('id="knowledge-toggle"'));
  assert.ok(html.includes('state.wiki=getWikiPreference()'));
  assert.ok(html.includes("localStorage.setItem('thigas_knowledge_wiki'"));
- assert.ok(html.includes("wikiSources.slice(0,3)"));
+ assert.ok(html.includes("result.fontes.slice(0,3)"));
+ assert.ok(html.includes("wikiSources=wikiSources.slice(0,keep)"));
  assert.ok(html.includes("window.THIGASBrowserGGUF.chat(messages,{effort})"));
 });
