@@ -38,3 +38,17 @@ jobs:
         run: |
           node --check chat_format.js
           node --test tests/chat_format.test.js
+      - name: Validar política de extensão e conhecimento
+        run: |
+          node --check local_gguf.js
+          node --test tests/knowledge_depth.test.js
+      - name: Verificar acesso público à Wikipédia sem utilizar LLM paga
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          from thigas_wiki import wikipedia
+          fonte=wikipedia('Albert Einstein',max_fontes=3)
+          if not fonte:
+              raise SystemExit('A Wikipédia não retornou fontes; verificar a integração.')
+          print('Fontes retornadas:',[(x['titulo'],len(x['texto'])) for x in fonte])
+          PY
